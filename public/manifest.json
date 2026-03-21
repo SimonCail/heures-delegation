@@ -1,0 +1,18 @@
+{
+  "name": "Heures de Délégation",
+  "short_name": "Délégation",
+  "description": "Gestion des heures de délégation",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#1e3a5f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
