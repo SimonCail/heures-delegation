@@ -37,6 +37,12 @@ body {
   flex-direction: column;
 }
 
+@media (min-width: 768px) {
+  #root {
+    max-width: 900px;
+  }
+}
+
 /* Header */
 .header {
   background: var(--primary);
@@ -660,5 +666,133 @@ body {
 @supports (padding: env(safe-area-inset-bottom)) {
   .main {
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ===== Desktop ===== */
+@media (min-width: 768px) {
+  .header {
+    padding: 20px 32px;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .header-top h1 {
+    font-size: 22px;
+    margin-bottom: 14px;
+  }
+
+  .main {
+    padding: 24px;
+  }
+
+  /* Month view: stats + entries side by side */
+  .month-view {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .stats-card {
+    position: sticky;
+    top: 110px;
+    margin-bottom: 0;
+  }
+
+  .entries-section {
+    min-height: 400px;
+  }
+
+  /* Entries list in 2 columns on wide screens */
+  .entries-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .entry-item:active {
+    transform: none;
+  }
+
+  .entry-item:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  /* Buttons hover states */
+  .nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .add-btn:hover {
+    background: var(--primary-light);
+  }
+
+  .submit-btn:hover:not(:disabled) {
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .cancel-btn:hover {
+    background: rgba(127, 140, 141, 0.2);
+  }
+
+  .entry-actions .edit-btn:hover {
+    background: rgba(74, 144, 217, 0.25);
+  }
+
+  .entry-actions .delete-btn:hover {
+    background: rgba(231, 76, 60, 0.22);
+  }
+
+  .import-btn:hover {
+    background: var(--primary-light);
+  }
+
+  /* Year view grid: 4 columns on desktop */
+  .months-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .month-card {
+    padding: 16px;
+  }
+
+  .month-card:active {
+    transform: none;
+  }
+
+  .month-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .month-card-name {
+    font-size: 14px;
+  }
+
+  .month-card-bar {
+    height: 6px;
+  }
+
+  /* Year stats wider */
+  .year-stats {
+    padding: 24px 32px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+
+  /* Form wider */
+  .entry-form {
+    padding: 20px;
+  }
+
+  /* View toggle hover */
+  .view-toggle button:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
   }
 }

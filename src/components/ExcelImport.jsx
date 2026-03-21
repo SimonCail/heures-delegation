@@ -12,12 +12,12 @@ export default function ExcelImport({ onImport }) {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const wb = read(e.target.result, { type: 'array', cellDates: true });
+        const wb = read(e.target.result, { type: 'array', cellDates: false });
         const allEntries = [];
 
         for (const name of wb.SheetNames) {
           const sheet = wb.Sheets[name];
-          const grid = utils.sheet_to_json(sheet, { header: 1, defval: '', cellDates: true });
+          const grid = utils.sheet_to_json(sheet, { header: 1, defval: '', raw: true });
           const entries = parseGrid(grid);
           allEntries.push(...entries);
         }
@@ -123,12 +123,14 @@ function parseGrid(grid) {
 function parseDate(val) {
   if (val === null || val === undefined || val === '') return null;
 
-  // JS Date object (from cellDates: true)
-  if (val instanceof Date && !isNaN(val)) {
-    const y = val.getFullYear();
+  // Excel serial number (days since 1900-01-01, with the 1900 leap year bug)
+  if (typeof val === 'number' && val > 1 && val < 200000) {
+    const epoch = new Date(Date.UTC(1899, 11, 30));
+    const date = new Date(epoch.getTime() + val * 86400000);
+    const y = date.getUTCFullYear();
     if (y < 1990 || y > 2100) return null;
-    const m = String(val.getMonth() + 1).padStart(2, '0');
-    const d = String(val.getDate()).padStart(2, '0');
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(date.getUTCDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
   }
 
