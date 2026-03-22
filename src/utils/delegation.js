@@ -1,5 +1,6 @@
 const MONTHLY_ALLOCATION = 22;
 const MAX_MONTHLY = 33;
+const CSE_S_MONTHLY = 4;
 
 const MONTH_NAMES = [
   'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
@@ -11,7 +12,7 @@ const MONTH_SHORT = [
   'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'
 ];
 
-export { MONTHLY_ALLOCATION, MAX_MONTHLY, MONTH_NAMES, MONTH_SHORT };
+export { MONTHLY_ALLOCATION, MAX_MONTHLY, CSE_S_MONTHLY, MONTH_NAMES, MONTH_SHORT };
 
 /**
  * Calculate the available hours for a given month,
@@ -21,30 +22,35 @@ export function getMonthData(entries, year, month) {
   let carryOver = 0;
 
   for (let m = 0; m < month; m++) {
-    const monthEntries = getEntriesForMonth(entries, year, m);
+    const monthEntries = getEntriesForMonth(entries, year, m).filter((e) => e.type !== 'cse-s');
     const used = monthEntries.reduce((sum, e) => sum + e.hours, 0);
-    const available = MONTHLY_ALLOCATION + carryOver;
-    const remaining = available - used;
-    // Carry-over is the unused hours (can be negative if over-used)
-    carryOver = remaining;
+    const totalAvailable = MONTHLY_ALLOCATION + carryOver;
+    // The person can only use up to MAX_MONTHLY, the rest carries over
+    carryOver = totalAvailable - used;
   }
 
-  const monthEntries = getEntriesForMonth(entries, year, month);
-  const used = monthEntries.reduce((sum, e) => sum + e.hours, 0);
-  const available = Math.min(MONTHLY_ALLOCATION + Math.max(0, carryOver), MAX_MONTHLY);
+  const allMonthEntries = getEntriesForMonth(entries, year, month);
+  const delegEntries = allMonthEntries.filter((e) => e.type !== 'cse-s');
+  const cseEntries = allMonthEntries.filter((e) => e.type === 'cse-s');
+
+  const used = delegEntries.reduce((sum, e) => sum + e.hours, 0);
   const totalWithCarry = MONTHLY_ALLOCATION + carryOver;
-  const remaining = totalWithCarry - used;
+
+  const cseUsed = cseEntries.reduce((sum, e) => sum + e.hours, 0);
 
   return {
     month,
     year,
-    entries: monthEntries.sort((a, b) => new Date(a.date) - new Date(b.date)),
-    carryOver: Math.max(0, carryOver),
+    entries: allMonthEntries.sort((a, b) => new Date(a.date) - new Date(b.date)),
+    carryOver,
     allocation: MONTHLY_ALLOCATION,
     available: Math.min(totalWithCarry, MAX_MONTHLY),
     used,
     remaining: totalWithCarry - used,
     maxMonthly: MAX_MONTHLY,
+    cseAllocation: CSE_S_MONTHLY,
+    cseUsed,
+    cseRemaining: CSE_S_MONTHLY - cseUsed,
   };
 }
 
@@ -63,12 +69,13 @@ export function getYearSummary(entries, year) {
   return months;
 }
 
-export function createEntry(date, hours, note = '') {
+export function createEntry(date, hours, note = '', type = 'delegation') {
   return {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
     date,
     hours: parseFloat(hours),
     note,
+    type,
   };
 }
 
