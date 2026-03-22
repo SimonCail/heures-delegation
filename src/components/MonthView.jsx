@@ -71,7 +71,7 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
     <div className="month-view">
       <div className="stats-column">
         <div className="stats-card">
-          <div className="stats-card-title">Délégation</div>
+          <div className="stats-card-title">CSE</div>
           <div className="stats-header">
             <div className="stat">
               <span className="stat-label">Crédit mensuel</span>

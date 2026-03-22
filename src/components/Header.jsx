@@ -41,7 +41,7 @@ export default function Header({ year, month, setYear, setMonth, view, setView, 
   return (
     <header className="header">
       <div className="header-top">
-        <h1>Heures de Delegation</h1>
+        <h1>Heures de Délégation</h1>
         <div className="header-right" ref={panelRef}>
           <button
             className={`settings-btn ${showSettings ? 'active' : ''}`}
