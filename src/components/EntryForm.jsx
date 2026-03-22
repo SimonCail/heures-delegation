@@ -72,7 +72,7 @@ export default function EntryForm({
               className={`type-btn ${type === 'delegation' ? 'active' : ''}`}
               onClick={() => setType('delegation')}
             >
-              Délégation
+              CSE
             </button>
             <button
               type="button"

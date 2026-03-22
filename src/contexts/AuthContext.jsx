@@ -7,8 +7,7 @@ import {
   GoogleAuthProvider,
   signOut,
   fetchSignInMethodsForEmail,
-  linkWithCredential,
-  EmailAuthProvider,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -57,10 +56,12 @@ export function AuthProvider({ children }) {
     return result;
   };
 
+  const resetPassword = (email) => sendPasswordResetEmail(auth, email);
+
   const logout = () => signOut(auth);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, loginWithGoogle, resetPassword, logout }}>
       {children}
     </AuthContext.Provider>
   );

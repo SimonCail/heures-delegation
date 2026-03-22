@@ -2,16 +2,18 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginPage() {
-  const { login, signup, loginWithGoogle } = useAuth();
+  const { login, signup, loginWithGoogle, resetPassword } = useAuth();
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
     try {
       if (isSignup) {
@@ -27,9 +29,27 @@ export default function LoginPage() {
 
   const handleGoogle = async () => {
     setError('');
+    setSuccess('');
     setLoading(true);
     try {
       await loginWithGoogle();
+    } catch (err) {
+      setError(translateError(err.code));
+    }
+    setLoading(false);
+  };
+
+  const handleForgotPassword = async () => {
+    setError('');
+    setSuccess('');
+    if (!email.trim()) {
+      setError('Entrez votre adresse email ci-dessus, puis cliquez sur "Mot de passe oublié".');
+      return;
+    }
+    setLoading(true);
+    try {
+      await resetPassword(email);
+      setSuccess('Un email de réinitialisation a été envoyé à ' + email);
     } catch (err) {
       setError(translateError(err.code));
     }
@@ -88,7 +108,14 @@ export default function LoginPage() {
             />
           </div>
 
+          {!isSignup && (
+            <button type="button" className="forgot-password-btn" onClick={handleForgotPassword} disabled={loading}>
+              Mot de passe oublié ?
+            </button>
+          )}
+
           {error && <p className="login-error">{error}</p>}
+          {success && <p className="login-success">{success}</p>}
 
           <button type="submit" className="submit-btn" disabled={loading}>
             {loading ? '...' : isSignup ? 'Créer mon compte' : 'Se connecter'}
@@ -97,7 +124,7 @@ export default function LoginPage() {
 
         <p className="login-switch">
           {isSignup ? 'Déjà un compte ?' : 'Pas encore de compte ?'}{' '}
-          <button type="button" onClick={() => { setIsSignup(!isSignup); setError(''); }}>
+          <button type="button" onClick={() => { setIsSignup(!isSignup); setError(''); setSuccess(''); }}>
             {isSignup ? 'Se connecter' : 'Créer un compte'}
           </button>
         </p>
