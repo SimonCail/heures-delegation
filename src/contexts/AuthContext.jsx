@@ -28,8 +28,20 @@ export function AuthProvider({ children }) {
     return unsub;
   }, []);
 
-  const login = (email, password) =>
-    signInWithEmailAndPassword(auth, email, password);
+  const login = async (email, password) => {
+    try {
+      return await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      // If login fails, check if this email uses Google instead
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        if (methods.includes('google.com') && !methods.includes('password')) {
+          throw { code: 'auth/google-account-exists' };
+        }
+      }
+      throw err;
+    }
+  };
 
   const signup = async (email, password) => {
     // Check if this email is already used by Google
