@@ -6,6 +6,9 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
+  fetchSignInMethodsForEmail,
+  linkWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
@@ -28,11 +31,19 @@ export function AuthProvider({ children }) {
   const login = (email, password) =>
     signInWithEmailAndPassword(auth, email, password);
 
-  const signup = (email, password) =>
-    createUserWithEmailAndPassword(auth, email, password);
+  const signup = async (email, password) => {
+    // Check if this email is already used by Google
+    const methods = await fetchSignInMethodsForEmail(auth, email);
+    if (methods.includes('google.com') && !methods.includes('password')) {
+      throw { code: 'auth/google-account-exists' };
+    }
+    return createUserWithEmailAndPassword(auth, email, password);
+  };
 
-  const loginWithGoogle = () =>
-    signInWithPopup(auth, googleProvider);
+  const loginWithGoogle = async () => {
+    const result = await signInWithPopup(auth, googleProvider);
+    return result;
+  };
 
   const logout = () => signOut(auth);
 

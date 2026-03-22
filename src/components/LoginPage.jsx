@@ -114,6 +114,7 @@ function translateError(code) {
     case 'auth/wrong-password': return 'Mot de passe incorrect.';
     case 'auth/invalid-credential': return 'Email ou mot de passe incorrect.';
     case 'auth/email-already-in-use': return 'Un compte existe déjà avec cet email.';
+    case 'auth/google-account-exists': return 'Cet email est lié à un compte Google. Utilisez "Continuer avec Google".';
     case 'auth/weak-password': return 'Le mot de passe doit contenir au moins 6 caractères.';
     case 'auth/popup-closed-by-user': return 'Connexion annulée.';
     case 'auth/too-many-requests': return 'Trop de tentatives. Réessayez plus tard.';
