@@ -1957,20 +1957,92 @@ input:focus-visible,
 .stats-view {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+}
+
+/* Hero total card */
+.stats-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  box-shadow: 0 10px 28px var(--accent-soft-hover);
+  color: white;
+}
+
+.stats-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+.stats-hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: relative;
+  z-index: 1;
+}
+
+.stats-hero-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  opacity: 0.85;
+}
+
+.stats-hero-value {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.stats-hero-value small {
+  font-size: 20px;
+  font-weight: 700;
+  opacity: 0.85;
+  margin-left: 1px;
+}
+
+.stats-hero-sub {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.stats-hero-spark {
+  width: 116px;
+  height: 44px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .stat-cards-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .mini-stat-card {
+  position: relative;
   background: var(--card);
   border: 1px solid var(--hairline);
   border-radius: 16px;
-  padding: 14px 8px;
+  padding: 16px 10px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1978,8 +2050,19 @@ input:focus-visible,
   box-shadow: var(--shadow-sm);
 }
 
+.mini-stat-dot {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot-neutral { background: var(--text-light); }
+
 .mini-stat-value {
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text);
@@ -1995,6 +2078,30 @@ input:focus-visible,
   letter-spacing: 0.4px;
   color: var(--text-light);
   text-align: center;
+}
+
+/* Coloured dot in chart titles */
+.title-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 7px;
+  vertical-align: middle;
+}
+
+.title-dot.dot-cse { background: var(--accent); }
+.title-dot.dot-grad { background: linear-gradient(135deg, var(--accent), var(--cse)); }
+
+/* Peak label on the line chart */
+.peak-bubble {
+  fill: var(--accent);
+}
+
+.peak-text {
+  fill: #fff;
+  font-size: 9px;
+  font-weight: 800;
 }
 
 .chart-card {
@@ -2074,8 +2181,8 @@ input:focus-visible,
 }
 
 .donut-svg {
-  width: 120px;
-  height: 120px;
+  width: 124px;
+  height: 124px;
   flex-shrink: 0;
 }
 
@@ -2107,7 +2214,13 @@ input:focus-visible,
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
+}
+
+.legend-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .legend-dot {

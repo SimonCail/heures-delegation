@@ -1,4 +1,4 @@
-import { getYearSummary, MONTH_SHORT, formatHours } from '../utils/delegation';
+import { getYearSummary, formatHours } from '../utils/delegation';
 import { exportPDF, exportExcel, exportCSV } from '../utils/export';
 
 const MONTH_INITIALS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
@@ -25,20 +25,31 @@ export default function StatsView({ entries, year, userLabel, toast }) {
 
   return (
     <div className="stats-view">
+      <div className="stats-hero">
+        <div className="stats-hero-content">
+          <span className="stats-hero-label">Total {year}</span>
+          <span className="stats-hero-value">{formatHours(grandTotal)}<small>h</small></span>
+          <span className="stats-hero-sub">
+            {activeMonths} mois actif{activeMonths > 1 ? 's' : ''}
+            {avg > 0 && <> · {formatHours(avg)}h / mois en moyenne</>}
+          </span>
+        </div>
+        {hasData && <Spark data={used} />}
+      </div>
+
       <div className="stat-cards-row">
         <div className="mini-stat-card">
-          <span className="mini-stat-value">{formatHours(grandTotal)}h</span>
-          <span className="mini-stat-label">Total {year}</span>
-        </div>
-        <div className="mini-stat-card">
+          <span className="mini-stat-dot dot-cse" />
           <span className="mini-stat-value used">{formatHours(totalCse)}h</span>
           <span className="mini-stat-label">CSE</span>
         </div>
         <div className="mini-stat-card">
+          <span className="mini-stat-dot dot-cses" />
           <span className="mini-stat-value cse">{formatHours(totalCseS)}h</span>
           <span className="mini-stat-label">CSE-S</span>
         </div>
         <div className="mini-stat-card">
+          <span className="mini-stat-dot dot-neutral" />
           <span className="mini-stat-value">{formatHours(avg)}h</span>
           <span className="mini-stat-label">Moy. / mois</span>
         </div>
@@ -51,17 +62,17 @@ export default function StatsView({ entries, year, userLabel, toast }) {
       ) : (
         <>
           <div className="chart-card">
-            <h3 className="chart-title">Utilisation CSE mois par mois</h3>
+            <h3 className="chart-title"><span className="title-dot dot-cse" /> Utilisation CSE mois par mois</h3>
             <LineChart data={used} />
           </div>
 
           <div className="charts-grid">
             <div className="chart-card">
-              <h3 className="chart-title">Répartition CSE / CSE-S</h3>
+              <h3 className="chart-title"><span className="title-dot dot-grad" /> Répartition CSE / CSE-S</h3>
               <DonutChart cse={totalCse} cseS={totalCseS} />
             </div>
             <div className="chart-card">
-              <h3 className="chart-title">Report cumulé par mois</h3>
+              <h3 className="chart-title"><span className="title-dot dot-cse" /> Report cumulé par mois</h3>
               <BarChart data={carryByMonth} />
             </div>
           </div>
@@ -86,9 +97,23 @@ export default function StatsView({ entries, year, userLabel, toast }) {
   );
 }
 
+/* ===== Sparkline (hero) ===== */
+function Spark({ data }) {
+  const w = 116, h = 44;
+  const max = Math.max(...data, 1);
+  const n = data.length;
+  const pts = data.map((v, i) => `${((i / (n - 1)) * w).toFixed(1)},${(h - (v / max) * (h - 4) - 2).toFixed(1)}`).join(' ');
+  return (
+    <svg className="stats-hero-spark" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true">
+      <polyline points={`0,${h} ${pts} ${w},${h}`} fill="rgba(255,255,255,0.16)" stroke="none" />
+      <polyline points={pts} fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /* ===== Line chart (monthly usage curve) ===== */
 function LineChart({ data }) {
-  const W = 320, H = 170, PL = 28, PR = 10, PT = 14, PB = 26;
+  const W = 320, H = 176, PL = 28, PR = 12, PT = 22, PB = 26;
   const innerW = W - PL - PR;
   const innerH = H - PT - PB;
   const max = niceMax(Math.max(...data, 1));
@@ -99,20 +124,37 @@ function LineChart({ data }) {
   const points = data.map((v, i) => [x(i), y(v)]);
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
   const areaPath = `${linePath} L${x(n - 1).toFixed(1)},${(PT + innerH).toFixed(1)} L${x(0).toFixed(1)},${(PT + innerH).toFixed(1)} Z`;
+  const peakIdx = data.indexOf(Math.max(...data));
 
   return (
     <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img">
+      <defs>
+        <linearGradient id="lineStroke" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" style={{ stopColor: 'var(--accent)' }} />
+          <stop offset="100%" style={{ stopColor: 'var(--accent-light)' }} />
+        </linearGradient>
+        <linearGradient id="lineArea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" style={{ stopColor: 'var(--accent)', stopOpacity: 0.28 }} />
+          <stop offset="100%" style={{ stopColor: 'var(--accent)', stopOpacity: 0 }} />
+        </linearGradient>
+      </defs>
       {[0, 0.5, 1].map((f) => (
         <g key={f}>
           <line className="chart-grid" x1={PL} y1={PT + innerH * f} x2={W - PR} y2={PT + innerH * f} />
           <text className="chart-axis" x={PL - 5} y={PT + innerH * f + 3} textAnchor="end">{formatHours(max * (1 - f))}</text>
         </g>
       ))}
-      <path className="chart-area" d={areaPath} />
-      <path className="chart-line" d={linePath} />
+      <path d={areaPath} fill="url(#lineArea)" />
+      <path d={linePath} fill="none" stroke="url(#lineStroke)" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round" />
       {points.map((p, i) => (
-        <circle key={i} className="chart-dot" cx={p[0]} cy={p[1]} r="3" />
+        <circle key={i} className="chart-dot" cx={p[0]} cy={p[1]} r={i === peakIdx ? 4 : 2.6} />
       ))}
+      {data[peakIdx] > 0 && (
+        <g>
+          <rect className="peak-bubble" x={points[peakIdx][0] - 16} y={points[peakIdx][1] - 22} width="32" height="15" rx="7.5" />
+          <text className="peak-text" x={points[peakIdx][0]} y={points[peakIdx][1] - 11.5} textAnchor="middle">{formatHours(data[peakIdx])}h</text>
+        </g>
+      )}
       {MONTH_INITIALS.map((m, i) => (
         <text key={i} className="chart-axis" x={x(i)} y={H - 8} textAnchor="middle">{m}</text>
       ))}
@@ -123,7 +165,7 @@ function LineChart({ data }) {
 /* ===== Donut chart (CSE vs CSE-S) ===== */
 function DonutChart({ cse, cseS }) {
   const total = cse + cseS || 1;
-  const r = 46, cx = 60, cy = 60, sw = 16;
+  const r = 48, cx = 62, cy = 62, sw = 18;
   const C = 2 * Math.PI * r;
   const cseLen = (cse / total) * C;
   const cseSLen = (cseS / total) * C;
@@ -131,7 +173,7 @@ function DonutChart({ cse, cseS }) {
 
   return (
     <div className="donut-wrap">
-      <svg className="donut-svg" viewBox="0 0 120 120" role="img">
+      <svg className="donut-svg" viewBox="0 0 124 124" role="img">
         <circle className="donut-track" cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none" />
         <g transform={`rotate(-90 ${cx} ${cy})`}>
           <circle className="donut-cse" cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none"
@@ -139,19 +181,23 @@ function DonutChart({ cse, cseS }) {
           <circle className="donut-cses" cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none"
             strokeDasharray={`${cseSLen} ${C - cseSLen}`} strokeDashoffset={-cseLen} strokeLinecap="round" />
         </g>
-        <text className="donut-total" x={cx} y={cy - 2} textAnchor="middle">{formatHours(cse + cseS)}h</text>
-        <text className="donut-sub" x={cx} y={cy + 14} textAnchor="middle">total</text>
+        <text className="donut-total" x={cx} y={cy - 1} textAnchor="middle">{formatHours(cse + cseS)}h</text>
+        <text className="donut-sub" x={cx} y={cy + 15} textAnchor="middle">total</text>
       </svg>
       <div className="donut-legend">
         <div className="legend-item">
           <span className="legend-dot legend-cse" />
-          <span className="legend-label">CSE</span>
-          <span className="legend-val">{formatHours(cse)}h · {pct(cse)}%</span>
+          <div className="legend-text">
+            <span className="legend-label">CSE</span>
+            <span className="legend-val">{formatHours(cse)}h · {pct(cse)}%</span>
+          </div>
         </div>
         <div className="legend-item">
           <span className="legend-dot legend-cses" />
-          <span className="legend-label">CSE-S</span>
-          <span className="legend-val">{formatHours(cseS)}h · {pct(cseS)}%</span>
+          <div className="legend-text">
+            <span className="legend-label">CSE-S</span>
+            <span className="legend-val">{formatHours(cseS)}h · {pct(cseS)}%</span>
+          </div>
         </div>
       </div>
     </div>
@@ -160,7 +206,7 @@ function DonutChart({ cse, cseS }) {
 
 /* ===== Bar chart (cumulative carry-over / report per month) ===== */
 function BarChart({ data }) {
-  const W = 320, H = 170, PL = 30, PR = 8, PT = 12, PB = 24;
+  const W = 320, H = 176, PL = 30, PR = 8, PT = 14, PB = 24;
   const innerW = W - PL - PR;
   const innerH = H - PT - PB;
   const top = niceMax(Math.max(...data, 1));
@@ -169,7 +215,7 @@ function BarChart({ data }) {
   const range = top - bottom || 1;
   const n = data.length;
   const slot = innerW / n;
-  const bw = Math.min(slot * 0.6, 16);
+  const bw = Math.min(slot * 0.58, 15);
   const y = (v) => PT + innerH - ((v - bottom) / range) * innerH;
   const zeroY = y(0);
 
@@ -177,6 +223,12 @@ function BarChart({ data }) {
 
   return (
     <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img">
+      <defs>
+        <linearGradient id="barPos" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" style={{ stopColor: 'var(--accent-light)' }} />
+          <stop offset="100%" style={{ stopColor: 'var(--accent)' }} />
+        </linearGradient>
+      </defs>
       {gridVals.map((gv, i) => (
         <g key={i}>
           <line className={`chart-grid ${gv === 0 ? 'chart-zero' : ''}`} x1={PL} y1={y(gv)} x2={W - PR} y2={y(gv)} />
@@ -191,7 +243,7 @@ function BarChart({ data }) {
         return (
           <g key={i}>
             {barH > 0.5 && (
-              <rect className={v >= 0 ? 'bar-pos' : 'bar-neg'} x={cx - bw / 2} y={barY} width={bw} height={barH} rx="2" />
+              <rect fill={v >= 0 ? 'url(#barPos)' : 'var(--danger)'} x={cx - bw / 2} y={barY} width={bw} height={barH} rx="3" />
             )}
             <text className="chart-axis" x={cx} y={H - 8} textAnchor="middle">{MONTH_INITIALS[i]}</text>
           </g>
