@@ -247,6 +247,17 @@ button {
   transform: rotate(45deg);
 }
 
+/* Settings backdrop — tap anywhere to close (mobile-friendly) */
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  animation: fade-in 0.2s ease;
+}
+
 /* Settings Panel */
 .settings-panel {
   position: fixed;
@@ -1843,6 +1854,12 @@ input:focus-visible,
   .settings-btn:hover {
     background: rgba(255, 255, 255, 0.25);
     transform: rotate(20deg);
+  }
+
+  .settings-backdrop {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .settings-panel {

@@ -55,6 +55,8 @@ export default function Header({ year, month, setYear, setMonth, view, setView, 
           </button>
 
           {showSettings && (
+            <>
+            <div className="settings-backdrop" onClick={() => setShowSettings(false)} />
             <div className="settings-panel">
               <div className="settings-header">
                 <span className="settings-title">Réglages</span>
@@ -103,6 +105,7 @@ export default function Header({ year, month, setYear, setMonth, view, setView, 
                 Deconnexion
               </button>
             </div>
+            </>
           )}
         </div>
       </div>
