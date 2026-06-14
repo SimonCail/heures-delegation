@@ -1,0 +1,218 @@
+import { getYearSummary, MONTH_SHORT, formatHours } from '../utils/delegation';
+import { exportPDF, exportExcel, exportCSV } from '../utils/export';
+
+const MONTH_INITIALS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+
+export default function StatsView({ entries, year, userLabel, toast }) {
+  const months = getYearSummary(entries, year);
+  const used = months.map((m) => m.used);
+  const cseUsed = months.map((m) => m.cseUsed);
+
+  const totalCse = used.reduce((s, v) => s + v, 0);
+  const totalCseS = cseUsed.reduce((s, v) => s + v, 0);
+  const grandTotal = totalCse + totalCseS;
+  const activeMonths = months.filter((m) => m.used + m.cseUsed > 0).length;
+  const avg = activeMonths > 0 ? totalCse / activeMonths : 0;
+
+  const hasData = grandTotal > 0;
+
+  const runExport = (fn) => {
+    Promise.resolve()
+      .then(fn)
+      .catch(() => toast?.show("L'export a échoué", 'error'));
+  };
+
+  return (
+    <div className="stats-view">
+      <div className="stat-cards-row">
+        <div className="mini-stat-card">
+          <span className="mini-stat-value">{formatHours(grandTotal)}h</span>
+          <span className="mini-stat-label">Total {year}</span>
+        </div>
+        <div className="mini-stat-card">
+          <span className="mini-stat-value used">{formatHours(totalCse)}h</span>
+          <span className="mini-stat-label">CSE</span>
+        </div>
+        <div className="mini-stat-card">
+          <span className="mini-stat-value cse">{formatHours(totalCseS)}h</span>
+          <span className="mini-stat-label">CSE-S</span>
+        </div>
+        <div className="mini-stat-card">
+          <span className="mini-stat-value">{formatHours(avg)}h</span>
+          <span className="mini-stat-label">Moy. / mois</span>
+        </div>
+      </div>
+
+      {!hasData ? (
+        <div className="chart-card">
+          <p className="empty-state">Aucune donnée à afficher pour {year}</p>
+        </div>
+      ) : (
+        <>
+          <div className="chart-card">
+            <h3 className="chart-title">Utilisation CSE mois par mois</h3>
+            <LineChart data={used} />
+          </div>
+
+          <div className="charts-grid">
+            <div className="chart-card">
+              <h3 className="chart-title">Répartition CSE / CSE-S</h3>
+              <DonutChart cse={totalCse} cseS={totalCseS} />
+            </div>
+            <div className="chart-card">
+              <h3 className="chart-title">Heures sur 12 mois</h3>
+              <BarChart cse={used} cseS={cseUsed} />
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className="chart-card export-card">
+        <h3 className="chart-title">Exporter {year}</h3>
+        <div className="export-buttons">
+          <button className="export-btn export-pdf" onClick={() => runExport(() => exportPDF(entries, year, userLabel))}>
+            <DocIcon /> PDF
+          </button>
+          <button className="export-btn export-excel" onClick={() => runExport(() => exportExcel(entries, year))}>
+            <SheetIcon /> Excel
+          </button>
+          <button className="export-btn export-csv" onClick={() => runExport(() => exportCSV(entries, year))}>
+            <SheetIcon /> CSV
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== Line chart (monthly usage curve) ===== */
+function LineChart({ data }) {
+  const W = 320, H = 170, PL = 28, PR = 10, PT = 14, PB = 26;
+  const innerW = W - PL - PR;
+  const innerH = H - PT - PB;
+  const max = niceMax(Math.max(...data, 1));
+  const n = data.length;
+  const x = (i) => PL + (n === 1 ? innerW / 2 : (i / (n - 1)) * innerW);
+  const y = (v) => PT + innerH - (v / max) * innerH;
+
+  const points = data.map((v, i) => [x(i), y(v)]);
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const areaPath = `${linePath} L${x(n - 1).toFixed(1)},${(PT + innerH).toFixed(1)} L${x(0).toFixed(1)},${(PT + innerH).toFixed(1)} Z`;
+
+  return (
+    <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img">
+      {[0, 0.5, 1].map((f) => (
+        <g key={f}>
+          <line className="chart-grid" x1={PL} y1={PT + innerH * f} x2={W - PR} y2={PT + innerH * f} />
+          <text className="chart-axis" x={PL - 5} y={PT + innerH * f + 3} textAnchor="end">{formatHours(max * (1 - f))}</text>
+        </g>
+      ))}
+      <path className="chart-area" d={areaPath} />
+      <path className="chart-line" d={linePath} />
+      {points.map((p, i) => (
+        <circle key={i} className="chart-dot" cx={p[0]} cy={p[1]} r="3" />
+      ))}
+      {MONTH_INITIALS.map((m, i) => (
+        <text key={i} className="chart-axis" x={x(i)} y={H - 8} textAnchor="middle">{m}</text>
+      ))}
+    </svg>
+  );
+}
+
+/* ===== Donut chart (CSE vs CSE-S) ===== */
+function DonutChart({ cse, cseS }) {
+  const total = cse + cseS || 1;
+  const r = 46, cx = 60, cy = 60, sw = 16;
+  const C = 2 * Math.PI * r;
+  const cseLen = (cse / total) * C;
+  const cseSLen = (cseS / total) * C;
+  const pct = (v) => Math.round((v / total) * 100);
+
+  return (
+    <div className="donut-wrap">
+      <svg className="donut-svg" viewBox="0 0 120 120" role="img">
+        <circle className="donut-track" cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none" />
+        <g transform={`rotate(-90 ${cx} ${cy})`}>
+          <circle className="donut-cse" cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none"
+            strokeDasharray={`${cseLen} ${C - cseLen}`} strokeLinecap="round" />
+          <circle className="donut-cses" cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none"
+            strokeDasharray={`${cseSLen} ${C - cseSLen}`} strokeDashoffset={-cseLen} strokeLinecap="round" />
+        </g>
+        <text className="donut-total" x={cx} y={cy - 2} textAnchor="middle">{formatHours(cse + cseS)}h</text>
+        <text className="donut-sub" x={cx} y={cy + 14} textAnchor="middle">total</text>
+      </svg>
+      <div className="donut-legend">
+        <div className="legend-item">
+          <span className="legend-dot legend-cse" />
+          <span className="legend-label">CSE</span>
+          <span className="legend-val">{formatHours(cse)}h · {pct(cse)}%</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot legend-cses" />
+          <span className="legend-label">CSE-S</span>
+          <span className="legend-val">{formatHours(cseS)}h · {pct(cseS)}%</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== Bar chart (stacked CSE + CSE-S over 12 months) ===== */
+function BarChart({ cse, cseS }) {
+  const W = 320, H = 170, PL = 24, PR = 8, PT = 12, PB = 24;
+  const innerW = W - PL - PR;
+  const innerH = H - PT - PB;
+  const totals = cse.map((v, i) => v + cseS[i]);
+  const max = niceMax(Math.max(...totals, 1));
+  const n = cse.length;
+  const slot = innerW / n;
+  const bw = Math.min(slot * 0.6, 16);
+  const base = PT + innerH;
+  const h = (v) => (v / max) * innerH;
+
+  return (
+    <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img">
+      <line className="chart-grid" x1={PL} y1={base} x2={W - PR} y2={base} />
+      {cse.map((v, i) => {
+        const cx = PL + slot * i + slot / 2;
+        const cseH = h(v);
+        const cseSH = h(cseS[i]);
+        return (
+          <g key={i}>
+            {cseH > 0 && <rect className="bar-cse" x={cx - bw / 2} y={base - cseH} width={bw} height={cseH} rx="2" />}
+            {cseSH > 0 && <rect className="bar-cses" x={cx - bw / 2} y={base - cseH - cseSH} width={bw} height={cseSH} rx="2" />}
+            <text className="chart-axis" x={cx} y={H - 8} textAnchor="middle">{MONTH_INITIALS[i]}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function niceMax(v) {
+  if (v <= 5) return 5;
+  if (v <= 10) return 10;
+  if (v <= 20) return 20;
+  if (v <= 50) return Math.ceil(v / 10) * 10;
+  return Math.ceil(v / 25) * 25;
+}
+
+function DocIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="16" y2="17" />
+    </svg>
+  );
+}
+
+function SheetIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <line x1="3" y1="9" x2="21" y2="9" /><line x1="3" y1="15" x2="21" y2="15" />
+      <line x1="9" y1="3" x2="9" y2="21" />
+    </svg>
+  );
+}

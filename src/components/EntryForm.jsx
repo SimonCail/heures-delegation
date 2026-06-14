@@ -7,10 +7,11 @@ export default function EntryForm({
   initialHours,
   initialNote,
   initialType,
+  presetDate,
   onSubmit,
   onCancel,
 }) {
-  const defaultDate = initialDate || `${year}-${String(month + 1).padStart(2, '0')}-01`;
+  const defaultDate = initialDate || presetDate || `${year}-${String(month + 1).padStart(2, '0')}-01`;
   const [date, setDate] = useState(defaultDate);
   const [hours, setHours] = useState(initialHours?.toString() || '');
   const [note, setNote] = useState(initialNote || '');

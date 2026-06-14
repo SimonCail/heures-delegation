@@ -2,12 +2,26 @@ import { useState } from 'react';
 import { getMonthData, formatDate, formatHours, createEntry, MONTH_NAMES } from '../utils/delegation';
 import EntryForm from './EntryForm';
 import ExcelImport from './ExcelImport';
+import CalendarView from './CalendarView';
 
 export default function MonthView({ entries, setEntries, year, month, toast }) {
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState(null);
+  const [layout, setLayout] = useState('list');
+  const [addDate, setAddDate] = useState(null);
+
+  const handleDayClick = (dateStr) => {
+    setAddDate(dateStr);
+    setEditingEntry(null);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setAddDate(null);
+  };
 
   const data = getMonthData(entries, year, month);
 
@@ -34,7 +48,7 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
     }
     const entry = createEntry(date, hours, note, type);
     setEntries([...entries, entry]);
-    setShowForm(false);
+    closeForm();
     const label = type === 'cse-s' ? ' (CSE-S)' : '';
     toast.show(`${formatHours(hours)}h${label} ajoutee${hours > 1 ? 's' : ''} le ${formatDate(date)}`, 'success');
   };
@@ -161,13 +175,39 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
           <h2>Saisies</h2>
           <div className="entries-actions">
             <ExcelImport onImport={handleImport} />
-            <button className="add-btn" onClick={() => { setShowForm(true); setEditingEntry(null); }}>
+            <button className="add-btn" onClick={() => { setAddDate(null); setEditingEntry(null); setShowForm(true); }}>
               + Ajouter
             </button>
           </div>
         </div>
 
-        {data.entries.length > 2 && (
+        <div className="list-toolbar">
+          <div className="layout-toggle">
+            <button
+              className={layout === 'list' ? 'active' : ''}
+              onClick={() => setLayout('list')}
+              aria-label="Vue liste"
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+              <span>Liste</span>
+            </button>
+            <button
+              className={layout === 'calendar' ? 'active' : ''}
+              onClick={() => setLayout('calendar')}
+              aria-label="Vue calendrier"
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <span>Calendrier</span>
+            </button>
+          </div>
+        </div>
+
+        {layout === 'list' && data.entries.length > 2 && (
           <div className="search-bar">
             <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"/>
@@ -190,12 +230,15 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
           <EntryForm
             year={year}
             month={month}
+            presetDate={addDate}
             onSubmit={handleAdd}
-            onCancel={() => setShowForm(false)}
+            onCancel={closeForm}
           />
         )}
 
-        {data.entries.length === 0 && !showForm ? (
+        {layout === 'calendar' ? (
+          <CalendarView entries={entries} year={year} month={month} onDayClick={handleDayClick} />
+        ) : data.entries.length === 0 && !showForm ? (
           <p className="empty-state">Aucune saisie pour {MONTH_NAMES[month].toLowerCase()}</p>
         ) : (
           <>

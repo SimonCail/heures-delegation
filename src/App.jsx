@@ -4,6 +4,7 @@ import { useFirestoreEntries } from './hooks/useFirestoreEntries';
 import Header from './components/Header';
 import MonthView from './components/MonthView';
 import YearView from './components/YearView';
+import StatsView from './components/StatsView';
 import LoginPage from './components/LoginPage';
 import Toast, { useToast } from './components/Toast';
 
@@ -62,6 +63,8 @@ function AuthenticatedApp({ user, logout, year, setYear, month, setMonth, view, 
           <div className="loading-data"><div className="spinner" /></div>
         ) : view === 'month' ? (
           <MonthView entries={entries} setEntries={setEntries} year={year} month={month} toast={toast} />
+        ) : view === 'stats' ? (
+          <StatsView entries={entries} year={year} userLabel={user.email || user.displayName} toast={toast} />
         ) : (
           <YearView entries={entries} setEntries={setEntries} year={year} onMonthClick={handleMonthClick} toast={toast} />
         )}

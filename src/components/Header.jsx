@@ -123,6 +123,12 @@ export default function Header({ year, month, setYear, setMonth, view, setView, 
           >
             Annee
           </button>
+          <button
+            className={view === 'stats' ? 'active' : ''}
+            onClick={() => setView('stats')}
+          >
+            Stats
+          </button>
         </div>
       </div>
       {view === 'month' ? (
