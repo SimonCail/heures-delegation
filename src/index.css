@@ -176,7 +176,20 @@ body::before {
 
 @media (min-width: 768px) {
   #root {
-    max-width: 900px;
+    max-width: 920px;
+  }
+}
+
+/* Larger laptops / desktops: use more of the available width */
+@media (min-width: 1200px) {
+  #root {
+    max-width: 1140px;
+  }
+}
+
+@media (min-width: 1500px) {
+  #root {
+    max-width: 1360px;
   }
 }
 
@@ -1900,5 +1913,39 @@ input:focus-visible,
 
   .modal-cancel:hover {
     background: var(--muted-hover);
+  }
+}
+
+/* ===================================================================
+   Wide screens (desktop) — fill more horizontal space
+   =================================================================== */
+@media (min-width: 1200px) {
+  .header {
+    padding: 24px 40px;
+  }
+
+  .main {
+    padding: 28px 40px;
+  }
+
+  .month-view {
+    grid-template-columns: 380px 1fr;
+    gap: 28px;
+  }
+
+  .entries-list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1500px) {
+  .month-view {
+    grid-template-columns: 420px 1fr;
+    gap: 32px;
+  }
+
+  .entries-list {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
