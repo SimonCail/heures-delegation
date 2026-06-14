@@ -230,6 +230,7 @@ function DonutChart({ cse, cseS }) {
 
 /* ===== Bar chart (cumulative carry-over / report per month) ===== */
 function BarChart({ data }) {
+  const [hover, setHover] = useState(null);
   const W = 320, H = 176, PL = 30, PR = 8, PT = 14, PB = 24;
   const innerW = W - PL - PR;
   const innerH = H - PT - PB;
@@ -244,6 +245,22 @@ function BarChart({ data }) {
   const zeroY = y(0);
 
   const gridVals = bottom < 0 ? [top, 0, bottom] : [top, top / 2, 0];
+
+  let bubble = null;
+  if (hover != null) {
+    const cx = PL + slot * hover + slot / 2;
+    const yv = y(data[hover]);
+    const label = `${formatHours(data[hover])}h`;
+    const bubbleW = Math.max(32, label.length * 6.5 + 12);
+    const bx = Math.min(Math.max(cx - bubbleW / 2, 2), W - bubbleW - 2);
+    const by = data[hover] >= 0 ? yv - 22 : yv + 7;
+    bubble = (
+      <g style={{ pointerEvents: 'none' }}>
+        <rect className="peak-bubble" x={bx} y={by} width={bubbleW} height="15" rx="7.5" />
+        <text className="peak-text" x={bx + bubbleW / 2} y={by + 11} textAnchor="middle">{label}</text>
+      </g>
+    );
+  }
 
   return (
     <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img">
@@ -265,7 +282,7 @@ function BarChart({ data }) {
         const barH = Math.abs(yv - zeroY);
         const barY = v >= 0 ? yv : zeroY;
         return (
-          <g key={i}>
+          <g key={i} opacity={hover == null || hover === i ? 1 : 0.4}>
             {barH > 0.5 && (
               <rect fill={v >= 0 ? 'url(#barPos)' : 'var(--danger)'} x={cx - bw / 2} y={barY} width={bw} height={barH} rx="3" />
             )}
@@ -273,6 +290,22 @@ function BarChart({ data }) {
           </g>
         );
       })}
+      {bubble}
+      {/* invisible hit areas for hover / tap */}
+      {data.map((v, i) => (
+        <rect
+          key={`hit${i}`}
+          x={PL + slot * i}
+          y={PT}
+          width={slot}
+          height={innerH}
+          fill="transparent"
+          style={{ cursor: 'pointer' }}
+          onMouseEnter={() => setHover(i)}
+          onMouseLeave={() => setHover(null)}
+          onClick={() => setHover((h) => (h === i ? null : i))}
+        />
+      ))}
     </svg>
   );
 }
