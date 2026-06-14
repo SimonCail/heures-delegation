@@ -7,7 +7,7 @@ const THEMES = [
   { id: 'dim', label: 'Bleu nuit', bg: '#15202b', fg: '#1e2d3d', accent: '#1d9bf0' },
 ];
 
-export default function Header({ year, month, setYear, setMonth, view, setView, onLogout, userEmail }) {
+export default function Header({ year, month, setYear, setMonth, view, onLogout, userEmail }) {
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const panelRef = useRef(null);
@@ -107,28 +107,6 @@ export default function Header({ year, month, setYear, setMonth, view, setView, 
             </div>
             </>
           )}
-        </div>
-      </div>
-      <div className="header-nav">
-        <div className="view-toggle">
-          <button
-            className={view === 'month' ? 'active' : ''}
-            onClick={() => setView('month')}
-          >
-            Mois
-          </button>
-          <button
-            className={view === 'year' ? 'active' : ''}
-            onClick={() => setView('year')}
-          >
-            Annee
-          </button>
-          <button
-            className={view === 'stats' ? 'active' : ''}
-            onClick={() => setView('stats')}
-          >
-            Stats
-          </button>
         </div>
       </div>
       {view === 'month' ? (

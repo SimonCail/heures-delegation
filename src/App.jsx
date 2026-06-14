@@ -5,6 +5,7 @@ import Header from './components/Header';
 import MonthView from './components/MonthView';
 import YearView from './components/YearView';
 import StatsView from './components/StatsView';
+import BottomNav from './components/BottomNav';
 import LoginPage from './components/LoginPage';
 import Toast, { useToast } from './components/Toast';
 
@@ -54,7 +55,6 @@ function AuthenticatedApp({ user, logout, year, setYear, month, setMonth, view, 
         setYear={setYear}
         setMonth={setMonth}
         view={view}
-        setView={setView}
         onLogout={logout}
         userEmail={user.email || user.displayName}
       />
@@ -69,6 +69,7 @@ function AuthenticatedApp({ user, logout, year, setYear, month, setMonth, view, 
           <YearView entries={entries} setEntries={setEntries} year={year} onMonthClick={handleMonthClick} toast={toast} />
         )}
       </main>
+      <BottomNav view={view} setView={setView} />
     </div>
   );
 }
