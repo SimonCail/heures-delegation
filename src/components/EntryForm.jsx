@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function EntryForm({
   year,
@@ -16,6 +16,11 @@ export default function EntryForm({
   const [hours, setHours] = useState(initialHours?.toString() || '');
   const [note, setNote] = useState(initialNote || '');
   const [type, setType] = useState(initialType || 'delegation');
+
+  // When a calendar day is tapped while the add form is open, update the date
+  useEffect(() => {
+    if (presetDate) setDate(presetDate);
+  }, [presetDate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
