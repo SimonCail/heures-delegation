@@ -13,7 +13,7 @@ export default function StatsView({ entries, year, userLabel, toast }) {
   const totalCseS = cseUsed.reduce((s, v) => s + v, 0);
   const grandTotal = totalCse + totalCseS;
   const activeMonths = months.filter((m) => m.used + m.cseUsed > 0).length;
-  const avg = activeMonths > 0 ? totalCse / activeMonths : 0;
+  const avg = totalCse / months.length;
 
   const hasData = grandTotal > 0;
 
