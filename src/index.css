@@ -288,15 +288,6 @@ button {
   transition: background 0.2s, transform 0.15s var(--ease-spring);
 }
 
-.today-pill::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #4ade80;
-  box-shadow: 0 0 7px #4ade80;
-}
-
 .today-pill:active {
   transform: scale(0.93);
   background: rgba(255, 255, 255, 0.28);

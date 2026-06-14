@@ -135,7 +135,13 @@ export default function Header({ year, month, setYear, setMonth, view, onLogout,
         <div className="period-main">
           <span className="period-title">{periodLabel}</span>
           {showToday && (
-            <button className="today-pill" onClick={goToToday}>Aujourd'hui</button>
+            <button className="today-pill" onClick={goToToday}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 3v5h5" />
+                <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8" />
+              </svg>
+              Revenir à aujourd'hui
+            </button>
           )}
         </div>
         <button className="nav-btn" onClick={onNext} aria-label={isMonth ? 'Mois suivant' : 'Année suivante'}>

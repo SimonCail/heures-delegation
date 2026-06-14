@@ -389,15 +389,17 @@ function RingGauge({ percent, over, value, label, variant = 'cse' }) {
           </linearGradient>
         </defs>
         <circle className="gauge-track" cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none" />
-        <g transform={`rotate(-90 ${cx} ${cy})`}>
-          <circle
-            className={`gauge-arc ${over ? 'over' : ''}`}
-            stroke={`url(#${gradId})`}
-            cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none"
-            strokeDasharray={`${dash} ${C - dash}`}
-            strokeLinecap="round"
-          />
-        </g>
+        {dash > 0 && (
+          <g transform={`rotate(-90 ${cx} ${cy})`}>
+            <circle
+              className={`gauge-arc ${over ? 'over' : ''}`}
+              stroke={`url(#${gradId})`}
+              cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none"
+              strokeDasharray={`${dash} ${C - dash}`}
+              strokeLinecap="round"
+            />
+          </g>
+        )}
       </svg>
       <div className="gauge-center">
         <span className={`gauge-value ${over ? 'negative' : ''}`}>{value}</span>
