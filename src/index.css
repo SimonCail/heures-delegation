@@ -2111,6 +2111,215 @@ input:focus-visible,
   opacity: 0.5;
 }
 
+/* Year comparison overlay */
+.chart-line-prev {
+  stroke: var(--text-light);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+  opacity: 0.75;
+}
+
+.compare-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+}
+
+.compare-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s var(--ease-spring);
+  box-shadow: var(--shadow-sm);
+}
+
+.compare-toggle:active { transform: scale(0.96); }
+
+.compare-toggle.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft-border);
+}
+
+.compare-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.compare-toggle.active .compare-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.compare-delta {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.compare-delta.up { color: var(--accent); }
+.compare-delta.down { color: var(--success); }
+
+.chart-compare-legend {
+  display: flex;
+  gap: 16px;
+  margin: -4px 0 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.ccl-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ccl-line {
+  width: 18px;
+  height: 0;
+  border-top: 2.5px solid var(--accent);
+  border-radius: 2px;
+}
+
+.ccl-line.dashed {
+  border-top: 2px dashed var(--text-light);
+}
+
+/* Advanced filters */
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.filters .search-bar {
+  margin-bottom: 0;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 6px;
+}
+
+.fchip {
+  padding: 6px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s var(--ease-spring);
+}
+
+.fchip:active { transform: scale(0.94); }
+
+.fchip.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+}
+
+.fchip.fchip-cse.active {
+  background: var(--cse);
+}
+
+.filter-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.filter-more.active {
+  color: var(--accent);
+  border-color: var(--accent-soft-border);
+  background: var(--accent-soft);
+}
+
+.filter-dates {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-date {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 130px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.filter-date input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filter-date input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.filter-clear {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
 .chart-card {
   background: var(--card);
   border: 1px solid var(--hairline);

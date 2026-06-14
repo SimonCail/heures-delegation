@@ -11,6 +11,10 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
   const [deletingId, setDeletingId] = useState(null);
   const [layout, setLayout] = useState('list');
   const [addDate, setAddDate] = useState(null);
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
 
   const handleDayClick = (dateStr) => {
     setAddDate(dateStr);
@@ -25,17 +29,36 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
 
   const data = getMonthData(entries, year, month);
 
+  const monthMin = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+  const monthMaxDay = new Date(year, month + 1, 0).getDate();
+  const monthMax = `${year}-${String(month + 1).padStart(2, '0')}-${String(monthMaxDay).padStart(2, '0')}`;
+
+  const hasActiveFilters = !!(search.trim() || typeFilter !== 'all' || dateFrom || dateTo);
+
   const filteredEntries = data.entries.filter((entry) => {
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
-    return (
-      formatDate(entry.date).toLowerCase().includes(q) ||
-      (entry.note && entry.note.toLowerCase().includes(q)) ||
-      `${entry.hours}h`.includes(q) ||
-      (entry.type === 'cse-s' && 'cse-s'.includes(q)) ||
-      (entry.type !== 'cse-s' && 'cse'.includes(q))
-    );
+    if (typeFilter === 'cse-s' && entry.type !== 'cse-s') return false;
+    if (typeFilter === 'delegation' && entry.type === 'cse-s') return false;
+    if (dateFrom && entry.date < dateFrom) return false;
+    if (dateTo && entry.date > dateTo) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const match =
+        formatDate(entry.date).toLowerCase().includes(q) ||
+        (entry.note && entry.note.toLowerCase().includes(q)) ||
+        `${entry.hours}h`.includes(q) ||
+        (entry.type === 'cse-s' && 'cse-s'.includes(q)) ||
+        (entry.type !== 'cse-s' && 'cse'.includes(q));
+      if (!match) return false;
+    }
+    return true;
   });
+
+  const clearFilters = () => {
+    setSearch('');
+    setTypeFilter('all');
+    setDateFrom('');
+    setDateTo('');
+  };
 
   const handleAdd = (date, hours, note, type) => {
     if (type === 'cse-s' && hours > data.cseRemaining) {
@@ -212,21 +235,61 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
           </div>
         </div>
 
-        {layout === 'list' && data.entries.length > 2 && (
-          <div className="search-bar">
-            <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher une saisie..."
-              className="search-input"
-            />
-            {search && (
-              <button className="search-clear" onClick={() => setSearch('')}>&times;</button>
+        {layout === 'list' && data.entries.length > 0 && (
+          <div className="filters">
+            {data.entries.length > 2 && (
+              <div className="search-bar">
+                <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Rechercher une saisie..."
+                  className="search-input"
+                />
+                {search && (
+                  <button className="search-clear" onClick={() => setSearch('')}>&times;</button>
+                )}
+              </div>
+            )}
+
+            <div className="filter-row">
+              <div className="filter-chips">
+                <button className={`fchip ${typeFilter === 'all' ? 'active' : ''}`} onClick={() => setTypeFilter('all')}>Tous</button>
+                <button className={`fchip ${typeFilter === 'delegation' ? 'active' : ''}`} onClick={() => setTypeFilter('delegation')}>CSE</button>
+                <button className={`fchip fchip-cse ${typeFilter === 'cse-s' ? 'active' : ''}`} onClick={() => setTypeFilter('cse-s')}>CSE-S</button>
+              </div>
+              <button
+                className={`filter-more ${showFilters || dateFrom || dateTo ? 'active' : ''}`}
+                onClick={() => setShowFilters((s) => !s)}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                Période
+              </button>
+            </div>
+
+            {showFilters && (
+              <div className="filter-dates">
+                <label className="filter-date">
+                  <span>Du</span>
+                  <input type="date" min={monthMin} max={monthMax} value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+                </label>
+                <label className="filter-date">
+                  <span>Au</span>
+                  <input type="date" min={monthMin} max={monthMax} value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+                </label>
+              </div>
+            )}
+
+            {hasActiveFilters && (
+              <button className="filter-clear" onClick={clearFilters}>
+                Réinitialiser les filtres
+              </button>
             )}
           </div>
         )}
@@ -247,8 +310,8 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
           <p className="empty-state">Aucune saisie pour {MONTH_NAMES[month].toLowerCase()}</p>
         ) : (
           <>
-            {search && filteredEntries.length === 0 && (
-              <p className="empty-state">Aucun resultat pour "{search}"</p>
+            {hasActiveFilters && filteredEntries.length === 0 && (
+              <p className="empty-state">Aucune saisie ne correspond aux filtres</p>
             )}
             <ul className="entries-list">
               {filteredEntries.map((entry) => (

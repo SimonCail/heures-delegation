@@ -5,6 +5,8 @@ import { exportPDF, exportExcel, exportCSV } from '../utils/export';
 const MONTH_INITIALS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
 
 export default function StatsView({ entries, year, userLabel, toast }) {
+  const [compare, setCompare] = useState(false);
+
   const months = getYearSummary(entries, year);
   const used = months.map((m) => m.used);
   const cseUsed = months.map((m) => m.cseUsed);
@@ -15,6 +17,15 @@ export default function StatsView({ entries, year, userLabel, toast }) {
   const grandTotal = totalCse + totalCseS;
   const activeMonths = months.filter((m) => m.used + m.cseUsed > 0).length;
   const avg = totalCse / months.length;
+
+  // Previous year (for comparison overlay)
+  const prevMonths = getYearSummary(entries, year - 1);
+  const prevUsed = prevMonths.map((m) => m.used);
+  const prevCarry = prevMonths.map((m) => m.carryOver);
+  const prevTotalCse = prevUsed.reduce((s, v) => s + v, 0);
+  const hasPrev = prevMonths.some((m) => m.used + m.cseUsed > 0);
+  const delta = totalCse - prevTotalCse;
+  const showCompare = compare && hasPrev;
 
   const hasData = grandTotal > 0;
 
@@ -56,6 +67,23 @@ export default function StatsView({ entries, year, userLabel, toast }) {
         </div>
       </div>
 
+      {hasPrev && (
+        <div className="compare-bar">
+          <button
+            className={`compare-toggle ${showCompare ? 'active' : ''}`}
+            onClick={() => setCompare((c) => !c)}
+          >
+            <span className="compare-check">{showCompare ? '✓' : ''}</span>
+            Comparer à {year - 1}
+          </button>
+          {delta !== 0 && (
+            <span className={`compare-delta ${delta > 0 ? 'up' : 'down'}`}>
+              {delta > 0 ? '▲' : '▼'} {formatHours(Math.abs(delta))}h CSE vs {year - 1}
+            </span>
+          )}
+        </div>
+      )}
+
       {!hasData ? (
         <div className="chart-card">
           <p className="empty-state">Aucune donnée à afficher pour {year}</p>
@@ -64,7 +92,8 @@ export default function StatsView({ entries, year, userLabel, toast }) {
         <>
           <div className="chart-card">
             <h3 className="chart-title"><span className="title-dot dot-cse" /> Utilisation CSE mois par mois</h3>
-            <LineChart data={used} />
+            {showCompare && <ChartCompareLegend year={year} />}
+            <LineChart data={used} compare={showCompare ? prevUsed : null} />
           </div>
 
           <div className="charts-grid">
@@ -74,7 +103,8 @@ export default function StatsView({ entries, year, userLabel, toast }) {
             </div>
             <div className="chart-card">
               <h3 className="chart-title"><span className="title-dot dot-cse" /> Report cumulé par mois</h3>
-              <BarChart data={carryByMonth} />
+              {showCompare && <ChartCompareLegend year={year} />}
+              <BarChart data={carryByMonth} compare={showCompare ? prevCarry : null} />
             </div>
           </div>
         </>
@@ -113,12 +143,12 @@ function Spark({ data }) {
 }
 
 /* ===== Line chart (monthly usage curve) ===== */
-function LineChart({ data }) {
+function LineChart({ data, compare }) {
   const [hover, setHover] = useState(null);
   const W = 320, H = 176, PL = 28, PR = 12, PT = 22, PB = 26;
   const innerW = W - PL - PR;
   const innerH = H - PT - PB;
-  const max = niceMax(Math.max(...data, 1));
+  const max = niceMax(Math.max(...data, ...(compare || []), 1));
   const n = data.length;
   const x = (i) => PL + (n === 1 ? innerW / 2 : (i / (n - 1)) * innerW);
   const y = (v) => PT + innerH - (v / max) * innerH;
@@ -126,6 +156,9 @@ function LineChart({ data }) {
   const points = data.map((v, i) => [x(i), y(v)]);
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
   const areaPath = `${linePath} L${x(n - 1).toFixed(1)},${(PT + innerH).toFixed(1)} L${x(0).toFixed(1)},${(PT + innerH).toFixed(1)} Z`;
+  const comparePath = compare
+    ? compare.map((v, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')
+    : null;
   const peakIdx = data.indexOf(Math.max(...data));
   const activeIdx = hover != null ? hover : peakIdx;
 
@@ -152,6 +185,9 @@ function LineChart({ data }) {
         </g>
       ))}
       <path d={areaPath} fill="url(#lineArea)" />
+      {comparePath && (
+        <path className="chart-line-prev" d={comparePath} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+      )}
       <path d={linePath} fill="none" stroke="url(#lineStroke)" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round" />
       {hover != null && (
         <line className="chart-hover-line" x1={points[hover][0]} y1={PT} x2={points[hover][0]} y2={PT + innerH} />
@@ -229,13 +265,13 @@ function DonutChart({ cse, cseS }) {
 }
 
 /* ===== Bar chart (cumulative carry-over / report per month) ===== */
-function BarChart({ data }) {
+function BarChart({ data, compare }) {
   const [hover, setHover] = useState(null);
   const W = 320, H = 176, PL = 30, PR = 8, PT = 14, PB = 24;
   const innerW = W - PL - PR;
   const innerH = H - PT - PB;
-  const top = niceMax(Math.max(...data, 1));
-  const minV = Math.min(...data, 0);
+  const top = niceMax(Math.max(...data, ...(compare || []), 1));
+  const minV = Math.min(...data, ...(compare || []), 0);
   const bottom = minV < 0 ? -niceMax(-minV) : 0;
   const range = top - bottom || 1;
   const n = data.length;
@@ -245,6 +281,9 @@ function BarChart({ data }) {
   const zeroY = y(0);
 
   const gridVals = bottom < 0 ? [top, 0, bottom] : [top, top / 2, 0];
+  const comparePath = compare
+    ? compare.map((v, i) => `${i === 0 ? 'M' : 'L'}${(PL + slot * i + slot / 2).toFixed(1)},${y(v).toFixed(1)}`).join(' ')
+    : null;
 
   let bubble = null;
   if (hover != null) {
@@ -290,6 +329,9 @@ function BarChart({ data }) {
           </g>
         );
       })}
+      {comparePath && (
+        <path className="chart-line-prev" d={comparePath} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+      )}
       {bubble}
       {/* invisible hit areas for hover / tap */}
       {data.map((v, i) => (
@@ -307,6 +349,15 @@ function BarChart({ data }) {
         />
       ))}
     </svg>
+  );
+}
+
+function ChartCompareLegend({ year }) {
+  return (
+    <div className="chart-compare-legend">
+      <span className="ccl-item"><span className="ccl-line solid" />{year}</span>
+      <span className="ccl-item"><span className="ccl-line dashed" />{year - 1}</span>
+    </div>
   );
 }
 

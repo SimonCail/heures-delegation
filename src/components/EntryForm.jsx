@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function EntryForm({
   year,
@@ -17,10 +17,14 @@ export default function EntryForm({
   const [note, setNote] = useState(initialNote || '');
   const [type, setType] = useState(initialType || 'delegation');
 
-  // When a calendar day is tapped while the add form is open, update the date
-  useEffect(() => {
-    if (presetDate) setDate(presetDate);
-  }, [presetDate]);
+  // When a calendar day is tapped while the form is open, sync the date.
+  // Adjusting state during render on a prop change is React's recommended
+  // alternative to a useEffect here.
+  const [prevPreset, setPrevPreset] = useState(presetDate);
+  if (presetDate && presetDate !== prevPreset) {
+    setPrevPreset(presetDate);
+    setDate(presetDate);
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
