@@ -205,34 +205,101 @@ button {
    Header
    =================================================================== */
 .header {
-  background: var(--header-grad);
+  background:
+    radial-gradient(120% 100% at 88% -40%, rgba(255, 255, 255, 0.2), transparent 58%),
+    var(--header-grad);
   color: white;
-  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 12px;
+  padding: calc(11px + env(safe-area-inset-top, 0px)) 18px 16px;
   position: sticky;
   top: 0;
   z-index: 10;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 18px rgba(10, 20, 40, 0.16);
+  box-shadow: 0 6px 22px rgba(10, 20, 40, 0.2);
 }
 
-.header-top {
+.header-eyebrow {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
-.header-top h1 {
-  font-size: 17px;
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
   font-weight: 700;
-  text-align: left;
-  letter-spacing: -0.02em;
-  background: linear-gradient(180deg, #ffffff, rgba(255, 255, 255, 0.82));
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.header-brand svg {
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+/* Large "title" period block */
+.header-period {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.period-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-width: 172px;
+}
+
+.period-title {
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  white-space: nowrap;
+  background: linear-gradient(180deg, #ffffff, rgba(255, 255, 255, 0.78));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.today-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: background 0.2s, transform 0.15s var(--ease-spring);
+}
+
+.today-pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 7px #4ade80;
+}
+
+.today-pill:active {
+  transform: scale(0.93);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .header-right {
@@ -486,41 +553,27 @@ button {
   color: #0a0a0a;
 }
 
-.month-selector {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-}
-
 .nav-btn {
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: white;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   font-size: 19px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: background 0.2s, transform 0.15s var(--ease-spring);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
 
 .nav-btn:active {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(0.9);
-}
-
-.current-month {
-  font-size: 16px;
-  font-weight: 700;
-  min-width: 150px;
-  text-align: center;
-  letter-spacing: -0.02em;
+  background: rgba(255, 255, 255, 0.32);
+  transform: scale(0.88);
 }
 
 /* ===================================================================
@@ -2530,12 +2583,12 @@ input:focus-visible,
    =================================================================== */
 @media (min-width: 768px) {
   .header {
-    padding: 22px 32px;
+    padding: 20px 32px 22px;
     border-radius: 0 0 24px 24px;
   }
 
-  .header-top h1 {
-    font-size: 21px;
+  .period-title {
+    font-size: 28px;
   }
 
   .main {
@@ -2551,7 +2604,7 @@ input:focus-visible,
 
   .stats-column {
     position: sticky;
-    top: 96px;
+    top: 128px;
   }
 
   .bottom-nav-btn:hover:not(.active) {

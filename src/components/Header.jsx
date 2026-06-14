@@ -38,10 +38,29 @@ export default function Header({ year, month, setYear, setMonth, view, onLogout,
     else setMonth(month + 1);
   };
 
+  const isMonth = view === 'month';
+  const now = new Date();
+  const periodLabel = isMonth ? `${MONTH_NAMES[month]} ${year}` : `${year}`;
+  const onPrev = isMonth ? goToPrevMonth : () => setYear(year - 1);
+  const onNext = isMonth ? goToNextMonth : () => setYear(year + 1);
+  const showToday = isMonth
+    ? month !== now.getMonth() || year !== now.getFullYear()
+    : year !== now.getFullYear();
+  const goToToday = () => {
+    if (isMonth) setMonth(now.getMonth());
+    setYear(now.getFullYear());
+  };
+
   return (
     <header className="header">
-      <div className="header-top">
-        <h1>Heures de Délégation</h1>
+      <div className="header-eyebrow">
+        <div className="header-brand">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <polyline points="12 7 12 12 15.5 14" />
+          </svg>
+          <span>Heures de délégation</span>
+        </div>
         <div className="header-right" ref={panelRef}>
           <button
             className={`settings-btn ${showSettings ? 'active' : ''}`}
@@ -109,21 +128,20 @@ export default function Header({ year, month, setYear, setMonth, view, onLogout,
           )}
         </div>
       </div>
-      {view === 'month' ? (
-        <div className="month-selector">
-          <button className="nav-btn" onClick={goToPrevMonth} aria-label="Mois précédent"><ChevronLeft /></button>
-          <span className="current-month">
-            {MONTH_NAMES[month]} {year}
-          </span>
-          <button className="nav-btn" onClick={goToNextMonth} aria-label="Mois suivant"><ChevronRight /></button>
+      <div className="header-period">
+        <button className="nav-btn" onClick={onPrev} aria-label={isMonth ? 'Mois précédent' : 'Année précédente'}>
+          <ChevronLeft />
+        </button>
+        <div className="period-main">
+          <span className="period-title">{periodLabel}</span>
+          {showToday && (
+            <button className="today-pill" onClick={goToToday}>Aujourd'hui</button>
+          )}
         </div>
-      ) : (
-        <div className="month-selector">
-          <button className="nav-btn" onClick={() => setYear(year - 1)} aria-label="Année précédente"><ChevronLeft /></button>
-          <span className="current-month">{year}</span>
-          <button className="nav-btn" onClick={() => setYear(year + 1)} aria-label="Année suivante"><ChevronRight /></button>
-        </div>
-      )}
+        <button className="nav-btn" onClick={onNext} aria-label={isMonth ? 'Mois suivant' : 'Année suivante'}>
+          <ChevronRight />
+        </button>
+      </div>
     </header>
   );
 }
