@@ -2057,6 +2057,14 @@ input:focus-visible,
 
 .bar-cse { fill: var(--accent); }
 .bar-cses { fill: var(--cse); }
+.bar-pos { fill: var(--accent); }
+.bar-neg { fill: var(--danger); }
+
+.chart-zero {
+  stroke: var(--text-light);
+  stroke-width: 1.3;
+  opacity: 0.6;
+}
 
 /* Donut */
 .donut-wrap {

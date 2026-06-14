@@ -7,6 +7,7 @@ export default function StatsView({ entries, year, userLabel, toast }) {
   const months = getYearSummary(entries, year);
   const used = months.map((m) => m.used);
   const cseUsed = months.map((m) => m.cseUsed);
+  const carryByMonth = months.map((m) => m.carryOver);
 
   const totalCse = used.reduce((s, v) => s + v, 0);
   const totalCseS = cseUsed.reduce((s, v) => s + v, 0);
@@ -60,8 +61,8 @@ export default function StatsView({ entries, year, userLabel, toast }) {
               <DonutChart cse={totalCse} cseS={totalCseS} />
             </div>
             <div className="chart-card">
-              <h3 className="chart-title">Heures sur 12 mois</h3>
-              <BarChart cse={used} cseS={cseUsed} />
+              <h3 className="chart-title">Report cumulé par mois</h3>
+              <BarChart data={carryByMonth} />
             </div>
           </div>
         </>
@@ -157,30 +158,41 @@ function DonutChart({ cse, cseS }) {
   );
 }
 
-/* ===== Bar chart (stacked CSE + CSE-S over 12 months) ===== */
-function BarChart({ cse, cseS }) {
-  const W = 320, H = 170, PL = 24, PR = 8, PT = 12, PB = 24;
+/* ===== Bar chart (cumulative carry-over / report per month) ===== */
+function BarChart({ data }) {
+  const W = 320, H = 170, PL = 30, PR = 8, PT = 12, PB = 24;
   const innerW = W - PL - PR;
   const innerH = H - PT - PB;
-  const totals = cse.map((v, i) => v + cseS[i]);
-  const max = niceMax(Math.max(...totals, 1));
-  const n = cse.length;
+  const top = niceMax(Math.max(...data, 1));
+  const minV = Math.min(...data, 0);
+  const bottom = minV < 0 ? -niceMax(-minV) : 0;
+  const range = top - bottom || 1;
+  const n = data.length;
   const slot = innerW / n;
   const bw = Math.min(slot * 0.6, 16);
-  const base = PT + innerH;
-  const h = (v) => (v / max) * innerH;
+  const y = (v) => PT + innerH - ((v - bottom) / range) * innerH;
+  const zeroY = y(0);
+
+  const gridVals = bottom < 0 ? [top, 0, bottom] : [top, top / 2, 0];
 
   return (
     <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img">
-      <line className="chart-grid" x1={PL} y1={base} x2={W - PR} y2={base} />
-      {cse.map((v, i) => {
+      {gridVals.map((gv, i) => (
+        <g key={i}>
+          <line className={`chart-grid ${gv === 0 ? 'chart-zero' : ''}`} x1={PL} y1={y(gv)} x2={W - PR} y2={y(gv)} />
+          <text className="chart-axis" x={PL - 5} y={y(gv) + 3} textAnchor="end">{formatHours(gv)}</text>
+        </g>
+      ))}
+      {data.map((v, i) => {
         const cx = PL + slot * i + slot / 2;
-        const cseH = h(v);
-        const cseSH = h(cseS[i]);
+        const yv = y(v);
+        const barH = Math.abs(yv - zeroY);
+        const barY = v >= 0 ? yv : zeroY;
         return (
           <g key={i}>
-            {cseH > 0 && <rect className="bar-cse" x={cx - bw / 2} y={base - cseH} width={bw} height={cseH} rx="2" />}
-            {cseSH > 0 && <rect className="bar-cses" x={cx - bw / 2} y={base - cseH - cseSH} width={bw} height={cseSH} rx="2" />}
+            {barH > 0.5 && (
+              <rect className={v >= 0 ? 'bar-pos' : 'bar-neg'} x={cx - bw / 2} y={barY} width={bw} height={barH} rx="2" />
+            )}
             <text className="chart-axis" x={cx} y={H - 8} textAnchor="middle">{MONTH_INITIALS[i]}</text>
           </g>
         );
