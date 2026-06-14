@@ -111,19 +111,35 @@ export default function Header({ year, month, setYear, setMonth, view, onLogout,
       </div>
       {view === 'month' ? (
         <div className="month-selector">
-          <button className="nav-btn" onClick={goToPrevMonth}>&#8249;</button>
+          <button className="nav-btn" onClick={goToPrevMonth} aria-label="Mois précédent"><ChevronLeft /></button>
           <span className="current-month">
             {MONTH_NAMES[month]} {year}
           </span>
-          <button className="nav-btn" onClick={goToNextMonth}>&#8250;</button>
+          <button className="nav-btn" onClick={goToNextMonth} aria-label="Mois suivant"><ChevronRight /></button>
         </div>
       ) : (
         <div className="month-selector">
-          <button className="nav-btn" onClick={() => setYear(year - 1)}>&#8249;</button>
+          <button className="nav-btn" onClick={() => setYear(year - 1)} aria-label="Année précédente"><ChevronLeft /></button>
           <span className="current-month">{year}</span>
-          <button className="nav-btn" onClick={() => setYear(year + 1)}>&#8250;</button>
+          <button className="nav-btn" onClick={() => setYear(year + 1)} aria-label="Année suivante"><ChevronRight /></button>
         </div>
       )}
     </header>
+  );
+}
+
+function ChevronLeft() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+  );
+}
+
+function ChevronRight() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
   );
 }
