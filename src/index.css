@@ -2104,6 +2104,13 @@ input:focus-visible,
   font-weight: 800;
 }
 
+.chart-hover-line {
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.5;
+}
+
 .chart-card {
   background: var(--card);
   border: 1px solid var(--hairline);

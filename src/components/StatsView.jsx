@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { getYearSummary, formatHours } from '../utils/delegation';
 import { exportPDF, exportExcel, exportCSV } from '../utils/export';
 
@@ -113,6 +114,7 @@ function Spark({ data }) {
 
 /* ===== Line chart (monthly usage curve) ===== */
 function LineChart({ data }) {
+  const [hover, setHover] = useState(null);
   const W = 320, H = 176, PL = 28, PR = 12, PT = 22, PB = 26;
   const innerW = W - PL - PR;
   const innerH = H - PT - PB;
@@ -125,6 +127,11 @@ function LineChart({ data }) {
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
   const areaPath = `${linePath} L${x(n - 1).toFixed(1)},${(PT + innerH).toFixed(1)} L${x(0).toFixed(1)},${(PT + innerH).toFixed(1)} Z`;
   const peakIdx = data.indexOf(Math.max(...data));
+  const activeIdx = hover != null ? hover : peakIdx;
+
+  const label = `${formatHours(data[activeIdx])}h`;
+  const bubbleW = Math.max(32, label.length * 6.5 + 12);
+  const bx = Math.min(Math.max(points[activeIdx][0] - bubbleW / 2, 2), W - bubbleW - 2);
 
   return (
     <svg className="chart-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img">
@@ -146,15 +153,32 @@ function LineChart({ data }) {
       ))}
       <path d={areaPath} fill="url(#lineArea)" />
       <path d={linePath} fill="none" stroke="url(#lineStroke)" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round" />
+      {hover != null && (
+        <line className="chart-hover-line" x1={points[hover][0]} y1={PT} x2={points[hover][0]} y2={PT + innerH} />
+      )}
       {points.map((p, i) => (
-        <circle key={i} className="chart-dot" cx={p[0]} cy={p[1]} r={i === peakIdx ? 4 : 2.6} />
+        <circle key={i} className="chart-dot" cx={p[0]} cy={p[1]} r={i === activeIdx ? 4 : 2.6} />
       ))}
-      {data[peakIdx] > 0 && (
-        <g>
-          <rect className="peak-bubble" x={points[peakIdx][0] - 16} y={points[peakIdx][1] - 22} width="32" height="15" rx="7.5" />
-          <text className="peak-text" x={points[peakIdx][0]} y={points[peakIdx][1] - 11.5} textAnchor="middle">{formatHours(data[peakIdx])}h</text>
+      {data[activeIdx] > 0 && (
+        <g style={{ pointerEvents: 'none' }}>
+          <rect className="peak-bubble" x={bx} y={points[activeIdx][1] - 22} width={bubbleW} height="15" rx="7.5" />
+          <text className="peak-text" x={bx + bubbleW / 2} y={points[activeIdx][1] - 11.5} textAnchor="middle">{label}</text>
         </g>
       )}
+      {/* invisible hit areas for hover / tap */}
+      {points.map((p, i) => (
+        <circle
+          key={`hit${i}`}
+          cx={p[0]}
+          cy={p[1]}
+          r="13"
+          fill="transparent"
+          style={{ cursor: 'pointer' }}
+          onMouseEnter={() => setHover(i)}
+          onMouseLeave={() => setHover(null)}
+          onClick={() => setHover((h) => (h === i ? null : i))}
+        />
+      ))}
       {MONTH_INITIALS.map((m, i) => (
         <text key={i} className="chart-axis" x={x(i)} y={H - 8} textAnchor="middle">{m}</text>
       ))}
