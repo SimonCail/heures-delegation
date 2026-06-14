@@ -13,6 +13,9 @@ export default function YearView({ entries, setEntries, year, onMonthClick, toas
   const totalCseUsed = months.reduce((s, m) => s + m.cseUsed, 0);
   const totalCseAlloc = months.reduce((s, m) => s + m.cseAllocation, 0);
 
+  const yearPct = totalAllocated > 0 ? (totalUsed / totalAllocated) * 100 : 0;
+  const cseYearPct = totalCseAlloc > 0 ? (totalCseUsed / totalCseAlloc) * 100 : 0;
+
   const now = new Date();
 
   const yearEntryCount = entries.filter((e) => {
@@ -32,34 +35,52 @@ export default function YearView({ entries, setEntries, year, onMonthClick, toas
   return (
     <div className="year-view">
       <div className="year-stats">
-        <div className="stat">
-          <span className="stat-label">Total annuel</span>
-          <span className="stat-value">{formatHours(totalAllocated)}h</span>
+        <div className="year-stats-head">
+          <span className="year-stats-title">Bilan CSE · {year}</span>
+          <span className="year-stats-gauge">{Math.round(yearPct)}% utilisé</span>
         </div>
-        <div className="stat">
-          <span className="stat-label">Total utilisé</span>
-          <span className="stat-value used">{formatHours(totalUsed)}h</span>
+        <div className="year-stats-row">
+          <div className="stat">
+            <span className="stat-label">Total annuel</span>
+            <span className="stat-value">{formatHours(totalAllocated)}h</span>
+          </div>
+          <div className="stat">
+            <span className="stat-label">Total utilisé</span>
+            <span className="stat-value used">{formatHours(totalUsed)}h</span>
+          </div>
+          <div className="stat">
+            <span className="stat-label">Report actuel</span>
+            <span className="stat-value remaining">{formatHours(report)}h</span>
+          </div>
         </div>
-        <div className="stat">
-          <span className="stat-label">Report actuel</span>
-          <span className="stat-value remaining">{formatHours(report)}h</span>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${Math.min(yearPct, 100)}%` }} />
         </div>
       </div>
 
       <div className="year-stats year-stats-cse">
-        <div className="stat">
-          <span className="stat-label">CSE-S annuel</span>
-          <span className="stat-value">{formatHours(totalCseAlloc)}h</span>
+        <div className="year-stats-head">
+          <span className="year-stats-title">CSE-S · Trésorier</span>
+          <span className="year-stats-gauge cse">{Math.round(cseYearPct)}% utilisé</span>
         </div>
-        <div className="stat">
-          <span className="stat-label">CSE-S utilisé</span>
-          <span className="stat-value used">{formatHours(totalCseUsed)}h</span>
+        <div className="year-stats-row">
+          <div className="stat">
+            <span className="stat-label">CSE-S annuel</span>
+            <span className="stat-value">{formatHours(totalCseAlloc)}h</span>
+          </div>
+          <div className="stat">
+            <span className="stat-label">CSE-S utilisé</span>
+            <span className="stat-value used">{formatHours(totalCseUsed)}h</span>
+          </div>
+          <div className="stat">
+            <span className="stat-label">CSE-S restant</span>
+            <span className="stat-value remaining">
+              {formatHours(totalCseAlloc - totalCseUsed)}h
+            </span>
+          </div>
         </div>
-        <div className="stat">
-          <span className="stat-label">CSE-S restant</span>
-          <span className="stat-value remaining">
-            {formatHours(totalCseAlloc - totalCseUsed)}h
-          </span>
+        <div className="progress-bar">
+          <div className="progress-fill progress-fill-cse" style={{ width: `${Math.min(cseYearPct, 100)}%` }} />
         </div>
       </div>
 
