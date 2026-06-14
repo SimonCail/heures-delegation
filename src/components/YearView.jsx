@@ -8,9 +8,12 @@ export default function YearView({ entries, setEntries, year, onMonthClick, toas
   const totalAllocated = months.reduce((s, m) => s + m.allocation, 0);
   const totalUsed = months.reduce((s, m) => s + m.used, 0);
   const lastMonth = months.findLast((m) => m.used > 0) || months[0];
+  const report = Math.max(0, lastMonth.remaining);
 
   const totalCseUsed = months.reduce((s, m) => s + m.cseUsed, 0);
   const totalCseAlloc = months.reduce((s, m) => s + m.cseAllocation, 0);
+
+  const now = new Date();
 
   const yearEntryCount = entries.filter((e) => {
     const d = new Date(e.date);
@@ -28,20 +31,29 @@ export default function YearView({ entries, setEntries, year, onMonthClick, toas
 
   return (
     <div className="year-view">
-      <div className="year-stats">
-        <div className="stat">
-          <span className="stat-label">Total annuel</span>
-          <span className="stat-value">{formatHours(totalAllocated)}h</span>
+      <div className="year-hero">
+        <div className="year-hero-top">
+          <div className="year-hero-main">
+            <span className="year-hero-eyebrow">Bilan CSE {year}</span>
+            <span className="year-hero-value">{formatHours(totalUsed)}<small>h</small></span>
+            <span className="year-hero-sub">utilisées sur {formatHours(totalAllocated)}h</span>
+          </div>
+          <div className="year-hero-report">
+            <span className="yhr-label">Report actuel</span>
+            <span className="yhr-value">{formatHours(report)}h</span>
+          </div>
         </div>
-        <div className="stat">
-          <span className="stat-label">Total utilisé</span>
-          <span className="stat-value used">{formatHours(totalUsed)}h</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Report actuel</span>
-          <span className="stat-value remaining">
-            {formatHours(Math.max(0, lastMonth.remaining))}h
-          </span>
+        <div className="year-spark" aria-hidden="true">
+          {months.map((m, i) => {
+            const max = Math.max(...months.map((x) => x.used), 1);
+            return (
+              <span
+                key={i}
+                className="year-spark-bar"
+                style={{ height: `${Math.max((m.used / max) * 100, 4)}%`, opacity: m.used > 0 ? 1 : 0.3 }}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -66,24 +78,28 @@ export default function YearView({ entries, setEntries, year, onMonthClick, toas
         {months.map((m) => {
           const usedPercent = m.available > 0 ? Math.min((m.used / m.available) * 100, 100) : 0;
           const isOver = m.remaining < 0;
-          const isFuture = m.used === 0 && m.cseUsed === 0 && (m.month > new Date().getMonth() || m.year > new Date().getFullYear());
+          const isCurrent = m.month === now.getMonth() && m.year === now.getFullYear();
+          const isFuture = m.used === 0 && m.cseUsed === 0 && (m.month > now.getMonth() || m.year > now.getFullYear());
 
           return (
             <button
               key={m.month}
-              className={`month-card ${isOver ? 'over' : ''} ${isFuture ? 'future' : ''}`}
+              className={`month-card ${isOver ? 'over' : ''} ${isFuture ? 'future' : ''} ${isCurrent ? 'current' : ''}`}
               onClick={() => onMonthClick(m.month)}
             >
-              <span className="month-card-name">{MONTH_SHORT[m.month]}</span>
+              <span className="month-card-name">
+                {MONTH_SHORT[m.month]}
+                {isCurrent && <span className="month-card-now">•</span>}
+              </span>
+              <span className="month-card-used">
+                {formatHours(m.used)}h
+                <span className="month-card-avail"> / {formatHours(m.available)}h</span>
+              </span>
               <div className="month-card-bar">
                 <div
                   className={`month-card-fill ${isOver ? 'over' : ''}`}
                   style={{ width: `${usedPercent}%` }}
                 />
-              </div>
-              <div className="month-card-stats">
-                <span>{formatHours(m.used)}h</span>
-                <span className="month-card-avail">/ {formatHours(m.available)}h</span>
               </div>
               {m.carryOver !== 0 && (
                 <span className={`month-card-carry ${m.carryOver < 0 ? 'month-card-deficit' : ''}`}>

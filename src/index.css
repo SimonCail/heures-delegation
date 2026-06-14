@@ -1316,13 +1316,123 @@ button {
 .year-view {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+}
+
+/* Annual hero card */
+.year-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 20px 22px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  box-shadow: 0 10px 28px var(--accent-soft-hover);
+  color: white;
+}
+
+.year-hero::before {
+  content: '';
+  position: absolute;
+  top: -45%;
+  right: -8%;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+.year-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.year-hero-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.year-hero-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  opacity: 0.85;
+}
+
+.year-hero-value {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.year-hero-value small {
+  font-size: 20px;
+  font-weight: 700;
+  opacity: 0.85;
+  margin-left: 1px;
+}
+
+.year-hero-sub {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.year-hero-report {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  padding: 9px 13px;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.yhr-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.85;
+}
+
+.yhr-value {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.year-spark {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 38px;
+  margin-top: 16px;
+}
+
+.year-spark-bar {
+  flex: 1;
+  min-height: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 3px 3px 1px 1px;
 }
 
 .year-stats {
   background: var(--card);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 20px 22px;
   box-shadow: var(--shadow);
   border: 1px solid var(--hairline);
   display: flex;
@@ -1361,11 +1471,50 @@ button {
   opacity: 0.45;
 }
 
+.month-card.current {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1.5px var(--accent), var(--shadow);
+}
+
 .month-card-name {
-  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
   font-weight: 800;
-  color: var(--text-secondary);
-  letter-spacing: -0.01em;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.month-card.current .month-card-name {
+  color: var(--accent);
+}
+
+.month-card-now {
+  color: var(--accent);
+  font-size: 16px;
+  line-height: 0;
+}
+
+.month-card-used {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.month-card.over .month-card-used {
+  color: var(--danger);
+}
+
+.month-card-used .month-card-avail {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 0;
 }
 
 .month-card-bar {
@@ -2813,7 +2962,15 @@ input:focus-visible,
   }
 
   .month-card-name {
-    font-size: 14px;
+    font-size: 12px;
+  }
+
+  .month-card-used {
+    font-size: 20px;
+  }
+
+  .month-card:hover .month-card-name {
+    color: var(--accent);
   }
 
   .month-card-bar {
