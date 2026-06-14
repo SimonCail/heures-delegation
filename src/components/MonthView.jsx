@@ -141,14 +141,14 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
               <span className="stat-value used">{formatHours(data.cseUsed)}h</span>
             </div>
             <div className="stat">
+              <span className="stat-label">Credit</span>
+              <span className="stat-value">{formatHours(data.cseAllocation)}h</span>
+            </div>
+            <div className="stat">
               <span className="stat-label">Restantes</span>
               <span className={`stat-value ${isCseOver ? 'negative' : 'remaining'}`}>
                 {formatHours(data.cseRemaining)}h
               </span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Credit</span>
-              <span className="stat-value">{formatHours(data.cseAllocation)}h</span>
             </div>
           </div>
         </div>
