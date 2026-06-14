@@ -122,72 +122,59 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
   return (
     <div className="month-view">
       <div className="stats-column">
-        <div className="stats-card">
+        <div className="stats-card stats-card-main">
           <div className="stats-card-title">CSE</div>
-          <div className="stats-header">
-            <div className="stat">
-              <span className="stat-label">Credit mensuel</span>
-              <span className="stat-value">{formatHours(data.allocation)}h</span>
-            </div>
-            {data.carryOver !== 0 && (
-              <div className="stat">
-                <span className="stat-label">{data.carryOver > 0 ? 'Report' : 'Deficit'}</span>
-                <span className={`stat-value ${data.carryOver > 0 ? 'report' : 'negative'}`}>
-                  {data.carryOver > 0 ? '+' : ''}{formatHours(data.carryOver)}h
-                </span>
-              </div>
-            )}
-            <div className="stat">
-              <span className="stat-label">Disponible</span>
-              <span className="stat-value">{formatHours(data.available)}h</span>
-            </div>
-          </div>
-
-          <div className="progress-bar">
-            <div
-              className={`progress-fill ${isOver ? 'over' : ''}`}
-              style={{ width: `${Math.min(usedPercent, 100)}%` }}
+          <div className="gauge-layout">
+            <RingGauge
+              percent={usedPercent}
+              over={isOver}
+              value={`${formatHours(data.remaining)}h`}
+              label="restantes"
             />
-          </div>
-
-          <div className="stats-footer">
-            <div className="stat">
-              <span className="stat-label">Utilisees</span>
-              <span className="stat-value used">{formatHours(data.used)}h</span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Restantes</span>
-              <span className={`stat-value ${isOver ? 'negative' : 'remaining'}`}>
-                {formatHours(data.remaining)}h
-              </span>
+            <div className="gauge-stats">
+              <div className="gstat">
+                <span className="gstat-label">Disponible</span>
+                <span className="gstat-value">{formatHours(data.available)}h</span>
+              </div>
+              <div className="gstat">
+                <span className="gstat-label">Utilisees</span>
+                <span className="gstat-value used">{formatHours(data.used)}h</span>
+              </div>
+              <div className="gstat">
+                <span className="gstat-label">Credit mensuel</span>
+                <span className="gstat-value">{formatHours(data.allocation)}h</span>
+              </div>
+              {data.carryOver !== 0 && (
+                <div className="gstat">
+                  <span className="gstat-label">{data.carryOver > 0 ? 'Report' : 'Deficit'}</span>
+                  <span className={`gstat-value ${data.carryOver > 0 ? 'report' : 'negative'}`}>
+                    {data.carryOver > 0 ? '+' : ''}{formatHours(data.carryOver)}h
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         <div className="stats-card stats-card-cse">
           <div className="stats-card-title">CSE-S <span className="cse-badge">Tresorier</span></div>
-          <div className="stats-header">
-            <div className="stat">
-              <span className="stat-label">Credit mensuel</span>
-              <span className="stat-value">{formatHours(data.cseAllocation)}h</span>
-            </div>
-          </div>
-          <div className="progress-bar">
-            <div
-              className={`progress-fill progress-fill-cse ${isCseOver ? 'over' : ''}`}
-              style={{ width: `${Math.min(csePercent, 100)}%` }}
+          <div className="gauge-layout">
+            <RingGauge
+              variant="cse-s"
+              percent={csePercent}
+              over={isCseOver}
+              value={`${formatHours(data.cseRemaining)}h`}
+              label="restantes"
             />
-          </div>
-          <div className="stats-footer">
-            <div className="stat">
-              <span className="stat-label">Utilisees</span>
-              <span className="stat-value used">{formatHours(data.cseUsed)}h</span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Restantes</span>
-              <span className={`stat-value ${isCseOver ? 'negative' : 'remaining'}`}>
-                {formatHours(data.cseRemaining)}h
-              </span>
+            <div className="gauge-stats">
+              <div className="gstat">
+                <span className="gstat-label">Credit mensuel</span>
+                <span className="gstat-value">{formatHours(data.cseAllocation)}h</span>
+              </div>
+              <div className="gstat">
+                <span className="gstat-label">Utilisees</span>
+                <span className="gstat-value used">{formatHours(data.cseUsed)}h</span>
+              </div>
             </div>
           </div>
         </div>
@@ -195,7 +182,7 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
 
       <div className="entries-section">
         <div className="entries-header">
-          <h2>Saisies</h2>
+          <h2>Saisies{data.entries.length > 0 && <span className="entries-count">{data.entries.length}</span>}</h2>
           <div className="entries-actions">
             <ExcelImport onImport={handleImport} />
             <button className="add-btn" onClick={() => { setAddDate(null); setEditingEntry(null); setShowForm(true); }}>
@@ -380,6 +367,42 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function RingGauge({ percent, over, value, label, variant = 'cse' }) {
+  const r = 42, cx = 50, cy = 50, sw = 9;
+  const C = 2 * Math.PI * r;
+  const dash = (Math.min(Math.max(percent, 0), 100) / 100) * C;
+  const gradId = `gaugeGrad-${variant}`;
+  const stops = variant === 'cse-s'
+    ? ['var(--cse-light)', 'var(--cse)']
+    : ['var(--accent-light)', 'var(--accent)'];
+  return (
+    <div className="gauge">
+      <svg className="gauge-svg" viewBox="0 0 100 100" role="img" aria-label={`${value} ${label}`}>
+        <defs>
+          <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" style={{ stopColor: stops[0] }} />
+            <stop offset="100%" style={{ stopColor: stops[1] }} />
+          </linearGradient>
+        </defs>
+        <circle className="gauge-track" cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none" />
+        <g transform={`rotate(-90 ${cx} ${cy})`}>
+          <circle
+            className={`gauge-arc ${over ? 'over' : ''}`}
+            stroke={`url(#${gradId})`}
+            cx={cx} cy={cy} r={r} strokeWidth={sw} fill="none"
+            strokeDasharray={`${dash} ${C - dash}`}
+            strokeLinecap="round"
+          />
+        </g>
+      </svg>
+      <div className="gauge-center">
+        <span className={`gauge-value ${over ? 'negative' : ''}`}>{value}</span>
+        <span className="gauge-label">{label}</span>
+      </div>
     </div>
   );
 }

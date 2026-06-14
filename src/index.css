@@ -759,6 +759,122 @@ button {
   box-shadow: 0 2px 8px rgba(142, 68, 173, 0.4);
 }
 
+/* CSE dashboard gauge */
+.gauge-layout {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.gauge {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  flex-shrink: 0;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.gauge-track {
+  stroke: var(--muted);
+}
+
+.gauge-arc {
+  transition: stroke-dasharray 0.7s var(--ease-out);
+  filter: drop-shadow(0 2px 4px rgba(20, 30, 50, 0.14));
+}
+
+.gauge-arc.over {
+  stroke: var(--danger);
+  filter: none;
+}
+
+.gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.gauge-value {
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--success);
+}
+
+.gauge-value.negative {
+  color: var(--danger);
+}
+
+.gauge-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+}
+
+.gauge-stats {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gstat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.gstat:first-child { padding-top: 0; }
+.gstat:last-child { border-bottom: none; padding-bottom: 0; }
+
+.gstat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.gstat-value {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.gstat-value.used { color: var(--warning); }
+.gstat-value.report { color: var(--accent); }
+.gstat-value.negative { color: var(--danger); }
+
+.entries-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 23px;
+  height: 23px;
+  padding: 0 7px;
+  margin-left: 9px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
 .stats-header,
 .stats-footer {
   display: flex;
