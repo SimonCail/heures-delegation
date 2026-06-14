@@ -1506,16 +1506,16 @@ button {
 .import-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
   background: var(--accent-soft);
   color: var(--accent);
   border: none;
-  padding: 9px 13px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
+  border-radius: 50%;
   cursor: pointer;
   transition: background 0.2s, transform 0.15s var(--ease-spring);
-  white-space: nowrap;
 }
 
 .import-btn:active {
