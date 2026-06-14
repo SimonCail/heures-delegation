@@ -854,16 +854,16 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 23px;
-  height: 23px;
-  padding: 0 7px;
-  margin-left: 9px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
   border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: #fff;
+  font-size: 13px;
   font-weight: 800;
-  vertical-align: middle;
+  letter-spacing: -0.02em;
+  box-shadow: 0 2px 6px var(--accent-soft-hover);
 }
 
 .stats-header,
@@ -967,9 +967,15 @@ button {
   align-items: center;
   margin-bottom: 14px;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .entries-header h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+  white-space: nowrap;
   font-size: 19px;
   font-weight: 800;
   letter-spacing: -0.02em;
