@@ -129,6 +129,12 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
 
         <div className="stats-card stats-card-cse">
           <div className="stats-card-title">CSE-S <span className="cse-badge">Tresorier</span></div>
+          <div className="stats-header">
+            <div className="stat">
+              <span className="stat-label">Credit mensuel</span>
+              <span className="stat-value">{formatHours(data.cseAllocation)}h</span>
+            </div>
+          </div>
           <div className="progress-bar">
             <div
               className={`progress-fill progress-fill-cse ${isCseOver ? 'over' : ''}`}
@@ -139,10 +145,6 @@ export default function MonthView({ entries, setEntries, year, month, toast }) {
             <div className="stat">
               <span className="stat-label">Utilisees</span>
               <span className="stat-value used">{formatHours(data.cseUsed)}h</span>
-            </div>
-            <div className="stat">
-              <span className="stat-label">Credit</span>
-              <span className="stat-value">{formatHours(data.cseAllocation)}h</span>
             </div>
             <div className="stat">
               <span className="stat-label">Restantes</span>
