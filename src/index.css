@@ -793,23 +793,40 @@ button {
 }
 
 .add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   background: linear-gradient(135deg, var(--accent), var(--accent-light));
   color: white;
   border: none;
-  padding: 9px 16px;
+  padding: 8px 16px 8px 8px;
   border-radius: 999px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.15s var(--ease-spring), box-shadow 0.2s;
-  box-shadow: 0 4px 12px var(--accent-soft-hover);
+  transition: transform 0.15s var(--ease-spring), box-shadow 0.2s, filter 0.2s;
+  box-shadow: 0 4px 14px var(--accent-soft-hover), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   letter-spacing: -0.01em;
   white-space: nowrap;
+}
+
+.add-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .add-btn:active {
   transform: scale(0.94);
   box-shadow: 0 2px 6px var(--accent-soft-hover);
+}
+
+.add-btn:active .add-btn-icon {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .empty-state {
