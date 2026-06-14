@@ -270,6 +270,40 @@ button {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px 14px 16px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.settings-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.settings-close {
+  background: var(--muted);
+  border: none;
+  color: var(--text-light);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.15s var(--ease-spring);
+}
+
+.settings-close:active {
+  background: var(--muted-hover);
+  transform: scale(0.9);
+}
+
 .settings-user {
   padding: 16px;
   border-bottom: 1px solid var(--hairline);
@@ -1825,6 +1859,10 @@ input:focus-visible,
 
   .settings-logout:hover {
     background: var(--danger-soft);
+  }
+
+  .settings-close:hover {
+    background: var(--muted-hover);
   }
 
   .google-btn:hover {
