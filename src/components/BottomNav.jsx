@@ -32,8 +32,10 @@ const TABS = [
 ];
 
 export default function BottomNav({ view, setView }) {
+  const activeIndex = Math.max(0, TABS.findIndex((t) => t.id === view));
   return (
-    <nav className="bottom-nav">
+    <nav className="bottom-nav" style={{ '--tabs': TABS.length }}>
+      <div className="bottom-nav-indicator" style={{ transform: `translateX(${activeIndex * 100}%)` }} />
       {TABS.map((t) => (
         <button
           key={t.id}
@@ -42,7 +44,7 @@ export default function BottomNav({ view, setView }) {
           aria-label={t.label}
           aria-current={view === t.id ? 'page' : undefined}
         >
-          {t.icon}
+          <span className="bottom-nav-icon">{t.icon}</span>
           <span className="bottom-nav-label">{t.label}</span>
         </button>
       ))}
