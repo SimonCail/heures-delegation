@@ -3,7 +3,6 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   GoogleAuthProvider,
@@ -12,15 +11,6 @@ import {
   sendPasswordResetEmail,
 } from 'firebase/auth';
 import { auth } from '../firebase';
-
-// Popup failures that mean "the popup couldn't open" (blocker / extension /
-// unsupported env) — in those cases we fall back to a full-page redirect.
-const POPUP_FALLBACK_CODES = [
-  'auth/popup-blocked',
-  'auth/operation-not-supported-in-this-environment',
-  'auth/internal-error',
-  'auth/network-request-failed',
-];
 
 const AuthContext = createContext(null);
 
@@ -64,19 +54,10 @@ export function AuthProvider({ children }) {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  const loginWithGoogle = async () => {
-    try {
-      return await signInWithPopup(auth, googleProvider);
-    } catch (err) {
-      // If the popup couldn't open (blocker / extension / unsupported),
-      // retry with a full-page redirect, which can't be popup-blocked.
-      if (POPUP_FALLBACK_CODES.includes(err?.code)) {
-        await signInWithRedirect(auth, googleProvider);
-        return; // the page navigates away; sign-in completes on return
-      }
-      throw err;
-    }
-  };
+  // Full-page redirect instead of a popup: no popup window and no
+  // cross-window handoff, so popup blockers / extensions can't break it.
+  // Sign-in completes on return via getRedirectResult + onAuthStateChanged.
+  const loginWithGoogle = () => signInWithRedirect(auth, googleProvider);
 
   const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
