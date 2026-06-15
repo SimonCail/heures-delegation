@@ -3,8 +3,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   GoogleAuthProvider,
   signOut,
   fetchSignInMethodsForEmail,
@@ -21,8 +20,6 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Complete a redirect-based Google sign-in if we're coming back from one.
-    getRedirectResult(auth).catch(() => {});
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
@@ -54,10 +51,7 @@ export function AuthProvider({ children }) {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  // Full-page redirect instead of a popup: no popup window and no
-  // cross-window handoff, so popup blockers / extensions can't break it.
-  // Sign-in completes on return via getRedirectResult + onAuthStateChanged.
-  const loginWithGoogle = () => signInWithRedirect(auth, googleProvider);
+  const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
 
   const resetPassword = (email) => sendPasswordResetEmail(auth, email);
 
