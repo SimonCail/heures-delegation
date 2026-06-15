@@ -2891,20 +2891,17 @@ input:focus-visible,
     display: grid;
     grid-template-columns: 340px 1fr;
     gap: 20px;
-    align-items: start;
+    align-items: stretch;
   }
 
   .stats-column {
     position: sticky;
     top: 128px;
+    align-self: start;
   }
 
   .bottom-nav-btn:hover:not(.active) {
     color: var(--text);
-  }
-
-  .entries-section {
-    min-height: 400px;
   }
 
   .entries-list {
