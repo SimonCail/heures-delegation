@@ -55,6 +55,7 @@ function AuthenticatedApp({ user, logout, year, setYear, month, setMonth, view, 
         setYear={setYear}
         setMonth={setMonth}
         view={view}
+        setView={setView}
         onLogout={logout}
         userEmail={user.email || user.displayName}
       />

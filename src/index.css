@@ -242,6 +242,11 @@ button {
   flex-shrink: 0;
 }
 
+/* Desktop header tabs (hidden on mobile — bottom bar used instead) */
+.header-tabs {
+  display: none;
+}
+
 /* Large "title" period block */
 .header-period {
   display: flex;
@@ -2792,8 +2797,46 @@ input:focus-visible,
     font-size: 28px;
   }
 
+  /* Tabs move into the header; the floating bar is mobile-only */
+  .header-tabs {
+    display: flex;
+    gap: 3px;
+    padding: 3px;
+    background: rgba(0, 0, 0, 0.22);
+    border-radius: 11px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+  }
+
+  .header-tabs button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 7px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: -0.01em;
+    transition: color 0.2s, background 0.25s var(--ease-out);
+  }
+
+  .header-tabs button:hover {
+    color: #fff;
+  }
+
+  .header-tabs button.active,
+  .header-tabs button.active:hover {
+    background: #fff;
+    color: var(--primary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
   .main {
-    padding: 24px 24px 92px;
+    padding: 24px 24px 28px;
   }
 
   .month-view {
@@ -2991,7 +3034,7 @@ input:focus-visible,
   }
 
   .main {
-    padding: 28px 40px 92px;
+    padding: 28px 40px 32px;
   }
 
   .month-view {

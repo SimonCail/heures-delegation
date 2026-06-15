@@ -7,7 +7,7 @@ const THEMES = [
   { id: 'dim', label: 'Bleu nuit', bg: '#15202b', fg: '#1e2d3d', accent: '#1d9bf0' },
 ];
 
-export default function Header({ year, month, setYear, setMonth, view, onLogout, userEmail }) {
+export default function Header({ year, month, setYear, setMonth, view, setView, onLogout, userEmail }) {
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const panelRef = useRef(null);
@@ -61,6 +61,11 @@ export default function Header({ year, month, setYear, setMonth, view, onLogout,
           </svg>
           <span>Heures de délégation</span>
         </div>
+        <nav className="header-tabs">
+          <button className={view === 'month' ? 'active' : ''} onClick={() => setView('month')}>CSE</button>
+          <button className={view === 'year' ? 'active' : ''} onClick={() => setView('year')}>Récap</button>
+          <button className={view === 'stats' ? 'active' : ''} onClick={() => setView('stats')}>Stats</button>
+        </nav>
         <div className="header-right" ref={panelRef}>
           <button
             className={`settings-btn ${showSettings ? 'active' : ''}`}
