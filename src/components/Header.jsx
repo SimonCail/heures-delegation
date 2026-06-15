@@ -7,6 +7,36 @@ const THEMES = [
   { id: 'dim', label: 'Bleu nuit', bg: '#15202b', fg: '#1e2d3d', accent: '#1d9bf0' },
 ];
 
+const HEADER_TABS = [
+  {
+    id: 'month',
+    label: 'CSE',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+    ),
+  },
+  {
+    id: 'year',
+    label: 'Récap',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
+      </svg>
+    ),
+  },
+  {
+    id: 'stats',
+    label: 'Stats',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="6" y1="20" x2="6" y2="13" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="18" y1="20" x2="18" y2="9" />
+      </svg>
+    ),
+  },
+];
+
 export default function Header({ year, month, setYear, setMonth, view, setView, onLogout, userEmail }) {
   const [showSettings, setShowSettings] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -62,9 +92,20 @@ export default function Header({ year, month, setYear, setMonth, view, setView, 
           <span>Heures de délégation</span>
         </div>
         <nav className="header-tabs">
-          <button className={view === 'month' ? 'active' : ''} onClick={() => setView('month')}>CSE</button>
-          <button className={view === 'year' ? 'active' : ''} onClick={() => setView('year')}>Récap</button>
-          <button className={view === 'stats' ? 'active' : ''} onClick={() => setView('stats')}>Stats</button>
+          <div
+            className="header-tabs-indicator"
+            style={{ transform: `translateX(${Math.max(0, HEADER_TABS.findIndex((t) => t.id === view)) * 100}%)` }}
+          />
+          {HEADER_TABS.map((t) => (
+            <button
+              key={t.id}
+              className={view === t.id ? 'active' : ''}
+              onClick={() => setView(t.id)}
+            >
+              {t.icon}
+              <span>{t.label}</span>
+            </button>
+          ))}
         </nav>
         <div className="header-right" ref={panelRef}>
           <button
